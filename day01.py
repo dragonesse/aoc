@@ -5,7 +5,7 @@ print("Day 1 puzzle: No time for Taxicab");
 #open file
 start_x, end_x, start_y, end_y = 0, 0, 0, 0 ;
 
-with open('./puzzle_input/day01_test.txt', 'r') as puzzle_in:
+with open('./puzzle_input/day01.txt', 'r') as puzzle_in:
     for cur_line in puzzle_in:
         turn_cntr = 0;
         print(cur_line.strip("\n"));
