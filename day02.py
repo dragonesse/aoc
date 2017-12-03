@@ -18,9 +18,12 @@ with open(puzzle_file, 'r') as puzzle_in:
     for cur_line in puzzle_in:
         sheet_line = [];
         sheet_line = [int(x) for x in cur_line.strip("\n").split()];
-        # sheet_line = cur_line.strip("\n").split();
-        print (sheet_line);
-        checksum += max(sheet_line) - min(sheet_line);
+        sheet_line.sort();
+        sheet_line.reverse();
+        for i in range(len(sheet_line)):
+            for j in range( i+1, len(sheet_line)):
+                if (sheet_line[i]%sheet_line[j] == 0):
+                    checksum += sheet_line[i] / sheet_line[j];
 puzzle_in.close();
 print ("checksum is %d" %(checksum));
 
