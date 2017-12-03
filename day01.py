@@ -11,7 +11,13 @@ if(len(sys.argv) == 1):
 else:
     puzzle_file = sys.argv[1];
 
-captcha_sum = 0;
+def index_to_compare (cur_index, offset):
+    calc_index = 0;
+    if (cur_index < offset):
+        calc_index = int(cur_index + offset);
+    else:
+        calc_index = offset - (2 * offset - cur_index);
+    return calc_index;
 
 #open file
 with open(puzzle_file, 'r') as puzzle_in:
@@ -19,21 +25,21 @@ with open(puzzle_file, 'r') as puzzle_in:
         digits = cur_line.strip("\n");
 puzzle_in.close();
 
-# process commands
+captcha_sum = 0;
+# calculate the offset to digit taken for comparison
+if (len(digits)%2 == 0):
+    index_offset = int(len(digits)/2);
+else:
+    print ("The input has odd number of digits, exiting");
+    sys.exit();
+
+# process captcha calculation
 digit_index = 0;
-for digit_index in range (len(digits) - 1):
-    print ("processing index %d, digit %s" %(digit_index, digits[digit_index]));
-    if (digits[digit_index] == digits[digit_index + 1]):
-        # incremetnt catptch sum
+for digit_index in range (len(digits)):
+    comp_index = index_to_compare (digit_index, index_offset);
+
+    if (digits[digit_index] == digits[comp_index]):
+        # incremetnt captcha sum
         captcha_sum += int(digits [digit_index]);
-    print ("sum %d:" %(captcha_sum));
 
-# final check for the last digit
-print ("processing index %d, digit %s" %(digit_index + 1, digits[digit_index + 1]));
-
-digit_index += 1
-if (digits[digit_index] == digits [0]):
-    captcha_sum += int(digits[digit_index]);
-
-
-print (captcha_sum);
+print ("The captcha sum is: %d" %(captcha_sum));
