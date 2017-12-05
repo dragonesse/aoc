@@ -19,12 +19,15 @@ with open(puzzle_file, 'r') as puzzle_in:
     stack = [int(line) for line in puzzle_in];
 
 puzzle_in.close();
-print (stack);
 
 index = 0;
 while (index < len(stack)) and (index >= 0):
     move = stack[index];
-    stack[index] += 1;
+    if move >= 3:
+        stack[index] -=1;
+    else:
+        stack[index] += 1;
+
     index += move;
     step_counter += 1;
 
