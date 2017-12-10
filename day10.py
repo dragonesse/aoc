@@ -33,10 +33,10 @@ def put_substr (start,list2put,targ_list):
 
 def calc_start (old_start, len2move, skip_s, len_list = 256):
     new_start = 0;
-    if old_start + len2move + skip_s < len_list:
-        new_start = old_start + len2move + skip_s;
+    if old_start + ((len2move + skip_s)%len_list) < len_list:
+        new_start = old_start + ((len2move + skip_s)%len_list);
     else:
-        new_start = (len2move + skip_s ) - (len_list - old_start);
+        new_start = ((len2move + skip_s )%len_list) - (len_list - old_start);
 
     return new_start;
 
