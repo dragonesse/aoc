@@ -44,9 +44,7 @@ def calc_dist (x,y):
     # the distance is the sum of movements toward the initial column and the initial row
     # to move to initial column, we need to substract y positions
     distance = math.fabs(x);
-    print ("x distance %d" %(distance));
     y = math.fabs(y) - distance;
-    print ("y position %d" %(y));
 
     # to move to initial row, we need to substract y positions and divide by 2
     distance = distance + math.fabs(y//2);
@@ -63,11 +61,15 @@ track_map = {
 
 # analyse stream and track current child position
 start_x, start_y = 0, 0;
-
+max_dist = 0;
 for step in trail:
 
     [start_x, start_y] = track_map[step](start_x, start_y);
+    cur_dist =  calc_dist(start_x, start_y);
+    if cur_dist > max_dist:
+        max_dist = cur_dist;
 
 print ("final position is %d, %d" %(start_x,start_y));
 
 print ("total distance is: %d" %( calc_dist(start_x, start_y)) );
+print ("max distance is: %d" %( max_dist) );
