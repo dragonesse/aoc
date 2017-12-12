@@ -1,6 +1,7 @@
 import re;
 import sys;
 import itertools;
+import functools;
 
 print("Day 10 puzzle: Knot Hash");
 
@@ -14,7 +15,6 @@ else:
 
 def update_iterator (offset, len_list, iterator):
     if offset%len_list > 0:
-        print ("update_iterator: offset", offset);
         iterator= itertools.islice(iterator, offset%len_list , None);
     return iterator;
 
@@ -28,59 +28,34 @@ def get_substr (start,num_elems,src_list):
     substr = [];
     it = make_iterator(len(src_list),start);
 
-    # if start + num_elems > len(src_list):
-    #     substr = src_list[start:] + src_list [:num_elems - (len(src_list) - start)];
-    # else:
-    #     substr = src_list[start:start+num_elems];
-
-    pr = 1;
     for i in range(num_elems):
-        n = next (it);
-        if pr:
-            print ("get_substr: first index in src_list", n);
-            pr = 0;
-        substr = substr + [src_list[n ]];
+        substr = substr + [ src_list[next(it)] ];
 
     return substr;
 
 def put_substr (start,list2put,targ_list):
 
-    # if len(list2put) < len(targ_list) - start:
-    #     targ_list[start:start + len(list2put)] = list2put;
-    # else:
-    #     targ_list[start:] = list2put[:len(targ_list)-start];
-    #     targ_list[:len(list2put) - (len(targ_list)-start)] = list2put[len(targ_list)-start:];
-
     it = make_iterator(len(targ_list),start);
-    pr = 1;
     for char in list2put:
-        n = next(it);
-        if pr:
-            print ("put_substr: first index in targ_list", n);
-            pr = 0;
-        targ_list[n] = char;
+        targ_list[next(it)] = char;
 
     return targ_list;
 
 def calc_start (old_start, len2move, skip_s, len_list):
-    new_start = 0;
-    # if old_start + ((len2move + skip_s)%len_list) < len_list:
-    #     new_start = old_start + ((len2move + skip_s)%len_list);
-    # else:
-    #     new_start = ((len2move + skip_s )%len_list) - (len_list - old_start);
     it = make_iterator(len_list,old_start + (len2move + skip_s)%len_list);
-    new_start = next(it);
 
-    print ("calc_start: new start point is: ", new_start);
-    return new_start;
+    return next(it);
 
 #open file
 lengths = [];
+suffix = [17, 31, 73, 47, 23];
 with open(puzzle_file, 'r') as puzzle_in:
 
     for cur_line in puzzle_in:
-        lengths = [int(x) for x in cur_line.split(r",")];
+        lengths = [ord(x) for x in cur_line.strip("\n")];
 
+    # add required suffix
+    lengths += suffix;
 puzzle_in.close();
 
 list_len = 256;
@@ -88,29 +63,26 @@ list_to_hash = [x for x in range(list_len)];
 start_pos  = 0;
 skip_size  = 0;
 
-cyclic_iterator = make_iterator(list_len);
+for rnd_id in range (64):
+    for single_len in lengths:
+        # get substring
 
-for single_len in lengths:
-    # get substring
-    print ("\nhashed list before: %s" %(list_to_hash));
-    print ("slice length %d, skip size %d, start %d" %(single_len,skip_size,start_pos));
+        if single_len > 0:
+            substr = get_substr (start_pos,single_len,list_to_hash);
+            # reverse it
+            substr = substr[::-1];
+            list_to_hash = put_substr(start_pos,substr,list_to_hash);
+        else:
+            print ("zero length substr, calculating next move")
 
-    if single_len > 0:
-        substr = get_substr (start_pos,single_len,list_to_hash);
-        # reverse it
-        substr = substr[::-1];
-        print ("substring ", substr);
-        list_to_hash = put_substr(start_pos,substr,list_to_hash);
-    else:
-        print ("zero length substr, calculating next move")
+        # recalculate positions to next iteration
+        start_pos = calc_start(start_pos,single_len,skip_size,len(list_to_hash));
+        skip_size += 1;
 
-    print ("\nhashed list after: %s" %(list_to_hash));
-    # input ("press the enter");
+# calculate dense hash - xor groups of 16 bytes
+dense_hash = [];
+for k in range(16):
+    dense_hash += [functools.reduce(lambda i, j: i^j, list_to_hash[k*16:16 + k*16])];
 
-    # this update iterator
-    # update_iterator(start_pos + single_len + skip_size - 1,len(list_to_hash),cyclic_iterator);
-    start_pos = calc_start(start_pos,single_len,skip_size,len(list_to_hash));
-
-    skip_size += 1;
-
-print ("multiplication of first two items: %d" %(list_to_hash[0] * list_to_hash [1]));
+hexstr = ''.join([format(x, '#04x') for x in dense_hash]).replace("0x","");
+print ("hex string is: ", hexstr);
