@@ -1,4 +1,3 @@
-import math;
 import sys;
 
 print("Day 12 puzzle: Digital Plumber");
@@ -21,43 +20,41 @@ with open(puzzle_file, 'r') as puzzle_in:
 
 puzzle_in.close();
 
-print (pipes);
-
 # analyse stream and track current child position
 visited = set();
 
-# for a given key, make values a new keys and read new values
+app_cntr = 0;
+grp_cntr = 0;
 
-dest = pipes [0];
-next_dest = pipes.copy();
+# looking for groups
+for src in pipes.keys():
+    if src not in visited:
+        print ("checking starting group search for prog %d" %(src));
+        dest = pipes [src];
+        next_dest = dest.copy();
+        visited.add(src);
+        app_cntr = 1; # group parent connects to itsetf
+        grp_cntr += 1;
 
-visited.add(0);
-app_cntr = 1; # zero connects to itsetf
+        while next_dest:
+            next_dest = [];
 
-# print ("\ndestinations: ",dest);
+            # for a given program (key), check its connections (values)
+            # if they they are connecting with some entity not checked yet
 
-i = 0;
-# while i < 7:
-while next_dest:
+            for prog in dest:
+                if prog not in visited:
+                    for candidate in pipes[prog]:
+                        if candidate not in visited:
+                            next_dest = next_dest + [candidate] ;
+                    app_cntr += 1;
+                    visited.add(prog);
+            dest = next_dest.copy();
+        print ("number of programs that communicate with prog%d is %d" %(src,app_cntr));
+    else:
+        next_dest = [];
 
-    next_dest = [];
-
-    for prog in dest:
-        print ("checking program %d" %(prog));
-        if prog not in visited:
-            print ("looking at connections of new program");
-            for candidate in pipes[prog]:
-                if candidate not in visited:
-                    print ("adding new candidate %d" %(candidate));
-                    next_dest = next_dest + [candidate] ;
-                    print (next_dest);
-            app_cntr += 1;
-            visited.add(prog);
-    dest = next_dest.copy();
-    i += 1;
-    print ("next programs to check", next_dest);
-
-print ("number of programs that communicate with prog0 is %d" %(app_cntr));
+print ("number of groups is %d" %(grp_cntr));
 
 
 
