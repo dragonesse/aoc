@@ -40,14 +40,23 @@ gen_b_val = gen_b_seed;
 
 judge_cntr = 0;
 
-
-for i in range (int(40E6)):
-    if not i%100E3:
-        print ("iteration %d, matches %d" %(i, judge_cntr));
-    gen_a_val = generate(gen_a_val, gen_a_factor);
+pairs_compared = 0;
+while pairs_compared < (int(5E6)):
+    if not pairs_compared%100E3:
+        print ("pairs compared by now %d, matches %d" %(pairs_compared, judge_cntr));
+    # generator b is slower, so we start from it, to avoid growing storage
+    # of values from A peer
     gen_b_val = generate(gen_b_val, gen_b_factor);
 
-    if is_equal(gen_a_val,gen_b_val):
-        judge_cntr += 1;
+    if not gen_b_val % 8:
+        gen_a_val = generate(gen_a_val, gen_a_factor);
+        while gen_a_val % 4:
+            gen_a_val = generate(gen_a_val, gen_a_factor);
+
+        if is_equal(gen_a_val,gen_b_val):
+            judge_cntr += 1;
+
+        pairs_compared += 1
 
 print("numer of matching pairs %d" %(judge_cntr));
+print("numer of matched pairs %d" %(pairs_compared));
