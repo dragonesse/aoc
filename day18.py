@@ -12,11 +12,12 @@ else:
     puzzle_file = sys.argv[1];
 
 music = [];
+pattern = re.compile(r"(\w+)\s(\w+)\s*(.+)*");
 
 #open file
 with open(puzzle_file, 'r') as puzzle_in:
     for cur_line in puzzle_in:
-        music.append( cur_line.strip("\n"));
+        music.append( pattern.match(cur_line.strip("\n")).groups());
 
 puzzle_in.close();
 
@@ -56,59 +57,78 @@ def mod (reg_X, Y, registers):
 def rcv (reg_X, Y, registers):
     # print ("rcv attepmpt to recover reg %s to %d!" %(reg_X, Y));
     rcv_res = False;
-    if reg_X.isalpha():
-        if registers[reg_X] != 0:
-            registers[reg_X] = Y;
-            rcv_res = True;
-    else:
-        if reg_X != 0 :
-            rcv_res = True;
+    if registers[reg_X] != 0:
+        registers[reg_X] = Y;
+        rcv_res = True;
     return rcv_res;
 
-def jgz (reg_X, Y, registers,ord_index):
+def jgz (cond, Y, registers,ord_index):
     # print ("jgz jumping  by %d if %s!" %(Y, reg_X));
-    if registers[reg_X] > 0:
+    if cond:
         ord_index += Y;
     else:
         ord_index += 1;
     return ord_index;
 
-registers = {};
+registers_0 = {
+    "p" : 0
+};
+
+registers_1 = {
+    "p" : 1
+}
+
+registers = {}
 
 track = {
-    "snd" : snd,
     "set" : set_reg,
     "add" : add,
     "mul" : mul,
     "mod" : mod,
-    "rcv" : rcv,
-    "jgz" : jgz
 };
 
 
 # analyse instructions
-pattern = re.compile(r"(\w+)\s(\w+)\s*(.+)*");
+
 last_freq = 0;
 
 i = 0;
 first_rcv = 0;
+queue_0 = [];
+queue_1 = [];
+
+reg_X, cmd = "", "";
+
 while i < len(music)  :
-    # parse the input
-    [cmd , reg_X, arg] = pattern.match(music[i]).groups();
-    # print (i);
 
-    if reg_X not in registers.keys():
-        registers [reg_X] = 0;
+    cmd = music[i][0]
+    jgz_cond = 0;
+    # if we met register name, add entry in registers module
+    # print (music[i]);
+    if music[i][1].isalpha():
+        reg_X = music [i][1];
+        if music[i][1] not in registers.keys():
+            # print ("arg1 adding key ", music[i][1])
+            registers [music[i][1]] = 0;
+            # print (registers)
 
-    val = 0;
-    if arg is not None:
-        if arg.isalpha():
-            if arg not in registers.keys():
-                registers [arg] = 0;
-            val = registers[arg];
+    if cmd == "jgz":
+        if music[i][1].isalpha():
+            jgz_cond = registers[music[i][1]];
+            reg_X = "";
         else:
-            val = int(arg);
+            jgz_cond = int(music [i][1]);
 
+    # find out values for two arg commands
+    val = 0;
+    if music[i][2] is not None and music[i][2].isalpha():
+        if music[i][2] not in registers.keys():
+            # print ("arg2 adding key ", music[i][1])
+            registers [music[i][2]] = 0;
+            # print (registers)
+        val = registers[music[i][2]];
+    elif music[i][2] is not None:
+        val = int(music[i][2]);
 
     if cmd == "snd":
         last_freq = snd(reg_X, registers);
@@ -119,7 +139,7 @@ while i < len(music)  :
             break;
         i += 1;
     elif cmd == "jgz":
-        i = jgz(reg_X, val, registers,i);
+        i = jgz(jgz_cond, val, registers,i);
     else:
         track[cmd](reg_X,val,registers);
         i += 1;
