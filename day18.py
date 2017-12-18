@@ -55,11 +55,15 @@ def mod (reg_X, Y, registers):
 
 def rcv (reg_X, Y, registers):
     # print ("rcv attepmpt to recover reg %s to %d!" %(reg_X, Y));
-    if registers[reg_X] != 0:
-        registers[reg_X] = Y;
-        return True;
+    rcv_res = False;
+    if reg_X.isalpha():
+        if registers[reg_X] != 0:
+            registers[reg_X] = Y;
+            rcv_res = True;
     else:
-        return False;
+        if reg_X != 0 :
+            rcv_res = True;
+    return rcv_res;
 
 def jgz (reg_X, Y, registers,ord_index):
     # print ("jgz jumping  by %d if %s!" %(Y, reg_X));
@@ -92,6 +96,7 @@ while i < len(music)  :
     # parse the input
     [cmd , reg_X, arg] = pattern.match(music[i]).groups();
     # print (i);
+
     if reg_X not in registers.keys():
         registers [reg_X] = 0;
 
