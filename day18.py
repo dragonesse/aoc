@@ -21,130 +21,131 @@ with open(puzzle_file, 'r') as puzzle_in:
 
 puzzle_in.close();
 
+class Prg:
 
-# snd X plays a sound with a frequency equal to the value of X.
-# set X Y sets register X to the value of Y.
-# add X Y increases register X by the value of Y.
-# mul X Y sets register X to the result of multiplying the value contained in register X by the value of Y.
-# mod X Y sets register X to the remainder of dividing the value contained in register X by the value of Y (that is, it sets X to the result of X modulo Y).
-# rcv X recovers the frequency of the last sound played, but only when the value of X is not zero. (If it is zero, the command does nothing.)
-# jgz X Y jumps with an offset of the value of Y, but only if the value of X is greater than zero. (An offset of 2 skips the next instruction, an offset of -1 jumps to the previous instruction, and so on.)
+    def snd (self, val_to_snd, r_rcv_q):
+        r_rcv_q.append(val_to_snd);
+        self.num_send += 1;
+        return ;
 
-def snd (reg_X, registers):
-    # print ("Playing the sound from register %s !" %(reg_X));
-    return registers[reg_X];
+    def set_reg (self, reg_X, Y):
+        self.registers[reg_X] = Y;
+        return ;
 
-def set_reg (reg_X, Y, registers):
-    # print ("set_reg %s to %d!" %(reg_X, Y));
-    registers[reg_X] = Y;
-    return ;
+    def add (self, reg_X, Y):
+        self.registers[reg_X] += Y;
+        return ;
 
-def add (reg_X, Y, registers):
-    # print ("add %d to reg %s!" %(Y, reg_X));
-    registers[reg_X] += Y;
-    return ;
+    def mul (self,reg_X, Y):
+        self.registers[reg_X] *= Y;
+        return ;
 
-def mul (reg_X, Y, registers):
-    # print ("mul reg %s by %d!" %(reg_X, Y));
-    registers[reg_X] *= Y;
-    return ;
+    def mod (self, reg_X, Y):
+        self.registers[reg_X] = self.registers[reg_X] % Y;
+        return;
 
-def mod (reg_X, Y, registers):
-    # print ("mod reg %s by %d!" %(reg_X, Y));
-    registers[reg_X] = registers[reg_X] % Y;
-    return;
+    def rcv (self, reg_X):
+        rcv_res = False;
+        if len(self.receive_q) > 0:
+            self.registers[reg_X] = self.receive_q.pop(0);
+            rcv_res = True;
+        return rcv_res;
 
-def rcv (reg_X, Y, registers):
-    # print ("rcv attepmpt to recover reg %s to %d!" %(reg_X, Y));
-    rcv_res = False;
-    if registers[reg_X] != 0:
-        registers[reg_X] = Y;
-        rcv_res = True;
-    return rcv_res;
-
-def jgz (cond, Y, registers,ord_index):
-    # print ("jgz jumping  by %d if %s!" %(Y, reg_X));
-    if cond:
-        ord_index += Y;
-    else:
-        ord_index += 1;
-    return ord_index;
-
-registers_0 = {
-    "p" : 0
-};
-
-registers_1 = {
-    "p" : 1
-}
-
-registers = {}
-
-track = {
-    "set" : set_reg,
-    "add" : add,
-    "mul" : mul,
-    "mod" : mod,
-};
-
-
-# analyse instructions
-
-last_freq = 0;
-
-i = 0;
-first_rcv = 0;
-queue_0 = [];
-queue_1 = [];
-
-reg_X, cmd = "", "";
-
-while i < len(music)  :
-
-    cmd = music[i][0]
-    jgz_cond = 0;
-    # if we met register name, add entry in registers module
-    # print (music[i]);
-    if music[i][1].isalpha():
-        reg_X = music [i][1];
-        if music[i][1] not in registers.keys():
-            # print ("arg1 adding key ", music[i][1])
-            registers [music[i][1]] = 0;
-            # print (registers)
-
-    if cmd == "jgz":
-        if music[i][1].isalpha():
-            jgz_cond = registers[music[i][1]];
-            reg_X = "";
+    def jgz (self,cond, Y, ord_index):
+        if cond > 0:
+            ord_index += Y;
         else:
-            jgz_cond = int(music [i][1]);
+            ord_index += 1;
+        return ord_index;
 
-    # find out values for two arg commands
-    val = 0;
-    if music[i][2] is not None and music[i][2].isalpha():
-        if music[i][2] not in registers.keys():
-            # print ("arg2 adding key ", music[i][1])
-            registers [music[i][2]] = 0;
-            # print (registers)
-        val = registers[music[i][2]];
-    elif music[i][2] is not None:
-        val = int(music[i][2]);
+    def __init__(self, prog_id):
+        self.registers = {
+           "p" : prog_id
+        }
 
-    if cmd == "snd":
-        last_freq = snd(reg_X, registers);
-        i += 1;
-    elif cmd == "rcv":
-        if rcv (reg_X, last_freq, registers):
-            print ("First rcv command, frequency is: ", last_freq)
-            break;
-        i += 1;
-    elif cmd == "jgz":
-        i = jgz(jgz_cond, val, registers,i);
-    else:
-        track[cmd](reg_X,val,registers);
-        i += 1;
-    # print (registers);
+        self.prg_id = prog_id;
+        self.receive_q = [];
+        self.num_send = 0;
+        self.resumed_at = 0;
 
-    # input ("press enter")
+        self.track = {
+            "set" : self.set_reg,
+            "add" : self.add,
+            "mul" : self.mul,
+            "mod" : self.mod
+        }
 
+    # analyse instructions
+    def run_prg (self, r_rcv_q, instructions):
+        i = self.resumed_at;
 
+        reg_X, cmd = "", "";
+
+        while i < len(instructions) :
+
+            cmd = instructions[i][0]
+            jgz_cond = 0;
+            # if we met register name, add entry in registers module
+            if instructions[i][1].isalpha():
+                reg_X = instructions [i][1];
+                if instructions[i][1] not in self.registers.keys():
+                    self.registers [instructions[i][1]] = 0;
+
+            if cmd == "jgz":
+                if instructions[i][1].isalpha():
+                    jgz_cond = self.registers[instructions[i][1]];
+                    reg_X = "";
+                else:
+                    jgz_cond = int(instructions [i][1]);
+
+            val = 0;
+            if cmd == "snd":
+                if instructions[i][1].isalpha():
+                    val = self.registers[instructions[i][1]];
+                    reg_X = "";
+                else:
+                    val = int(instructions [i][1])
+
+            # find out values for two arg commands
+            if instructions[i][2] is not None and instructions[i][2].isalpha():
+                if instructions[i][2] not in self.registers.keys():
+                    self.registers [instructions[i][2]] = 0;
+                val = self.registers[instructions[i][2]];
+            elif instructions[i][2] is not None:
+                val = int(instructions[i][2]);
+
+            if cmd == "snd":
+                self.snd(val, r_rcv_q);
+                i += 1;
+            elif cmd == "rcv":
+                if self.rcv (reg_X):
+                    i += 1;
+                else:
+                    # we need to stop execution, but need to keep track where we stopped
+                    self.resumed_at = i;
+                    return i;
+            elif cmd == "jgz":
+                i = self.jgz(jgz_cond, val ,i);
+            else:
+                self.track[cmd](reg_X,val);
+                i += 1;
+        return 0;
+
+deadlock = False;
+
+pr0 = Prg(0);
+pr1 = Prg(1);
+
+while not deadlock:
+
+    # run prog 0 as far as possible
+    pr0.run_prg( pr1.receive_q, music);
+    # run prog 1 as far as possible
+    pr1.run_prg( pr0.receive_q, music);
+
+    # programs stop at rcv commands
+    # if both queues are empty, we have a deadlock
+    if len(pr0.receive_q) == 0 and len(pr1.receive_q) == 0:
+        deadlock = True;
+
+print ("prog 1 send %d messages" %(pr1.num_send))
