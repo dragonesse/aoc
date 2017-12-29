@@ -1,5 +1,5 @@
 import sys;
-import re;
+import time;
 
 print("Day 22 puzzle: Sporifica Virus");
 
@@ -29,7 +29,7 @@ class Cluster:
 
     def is_infected (self, layout):
         # if the node is infected, the entry exists in dictionary
-        return Cluster.position2key(self.x,self.y) in layout
+        return self.position2key(self.x,self.y) in layout
 
     def get_health_rep (self, layout):
         node_state = None
@@ -38,16 +38,13 @@ class Cluster:
             node_state = layout[self.position2key(self.x,self.y)]
         return node_state
 
-
     def find_direction (self, layout):
         # If it is clean, it turns left.
         # If it is weakened, it does not turn, and will continue moving in the same direction.
         # If it is infected, it turns right.
         # If it is flagged, it reverses direction, and will go back the way it came.
 
-        # node_infected = self.is_infected (layout)
         node_state  = self.get_health_rep(layout)
-        # print ("find_direction: node is infected ", node_infected)
 
         if node_state == "W":
             # nothing changes, direction stays the same
@@ -82,28 +79,6 @@ class Cluster:
             else:
                 self.direction = "up"
 
-        # if self.direction  == "up":
-        #     if node_infected:
-        #         self.direction = "right"
-        #     else:
-        #         self.direction = "left"
-        # elif self.direction == "down":
-        #     if node_infected:
-        #         self.direction = "left";
-        #     else:
-        #         self.direction = "right"
-        # elif self.direction == "left":
-        #     if node_infected:
-        #         self.direction = "up";
-        #     else:
-        #         self.direction = "down";
-        # elif self.direction == "right":
-        #     if node_infected:
-        #         self.direction = "down";
-        #     else:
-        #         self.direction = "up";
-
-        # print ("find_direction: new direction is %s" %(self.direction))
         return self.direction;
 
     def calc_pos (self):
@@ -115,16 +90,31 @@ class Cluster:
             self.x -= 1
         elif self.direction == "right":
             self.x += 1
-        # print ("calc_pos: new pos is: %d %d" %(self.x, self.y))
         return self.position2key(self.x,self.y)
 
     def infect (self,layout):
-        if self.position2key(self.x,self.y) not in layout:
+        if self.position2key(self.x,self.y) in layout:
             layout [self.position2key(self.x,self.y)] = "I"
             self.num_infected += 1
             return 1
         else:
-            print ("trying to infect existing node")
+            print ("trying to infect node not present in health map")
+            return 0
+
+    def weaken (self, layout):
+        if self.position2key(self.x,self.y) not in layout:
+            layout [self.position2key(self.x,self.y)] = "W"
+            return 1
+        else:
+            print ("trying to weaken node that is not clean")
+            return 0
+
+    def flag (self, layout):
+        if self.position2key(self.x,self.y) in layout:
+            layout [self.position2key(self.x,self.y)] = "F"
+            return 1
+        else:
+            print ("trying to weaken node that is not in health map")
             return 0
 
     def heal (self,layout):
@@ -142,7 +132,7 @@ class Cluster:
         self.direction = "up"
         return
 
-# convert map to set of infected nodes
+# convert input array to set of infected nodes
 infection_map = {}
 
 xinit = len(layout[0])//2
@@ -154,19 +144,29 @@ for i in range(len(layout)):
 
 
 aoc_cluster = Cluster(xinit,yinit)
-num_cycles = 10000
+num_cycles = 10000000
+timestamp = time.time()
 for i in range(num_cycles):
-    # If the current node is infected, it turns to its right. Otherwise, it turns to its left.
-    # (Turning is done in-place; the current node does not change.)
+
+    # Setting up new direction, per virus rules (do not move yet)
     aoc_cluster.find_direction(infection_map)
 
-    # If the current node is clean, it becomes infected. Otherwise, it becomes cleaned. (This is done after the node is considered for the purposes of changing direction.)
-    if aoc_cluster.is_infected(infection_map):
+    # Clean nodes become weakened.
+    # Weakened nodes become infected.
+    # Infected nodes become flagged.
+    # Flagged nodes become clean.
+    node_health = aoc_cluster.get_health_rep(infection_map)
+    if node_health == "W":
+        aoc_cluster.infect(infection_map)
+    elif node_health == "I":
+        aoc_cluster.flag(infection_map)
+    elif node_health == "F":
         aoc_cluster.heal(infection_map)
     else:
-        aoc_cluster.infect(infection_map)
+        aoc_cluster.weaken(infection_map)
 
     # The virus carrier moves forward one node in the direction it is facing.
     aoc_cluster.calc_pos()
 
-print ("number of nodes that virus infected is %d" %(aoc_cluster.num_infected))
+
+print ("Number of nodes that virus infected is %d" %(aoc_cluster.num_infected))
