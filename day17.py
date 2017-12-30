@@ -1,5 +1,4 @@
 import sys;
-import itertools;
 
 print("Day 17 puzzle: Spinlock ");
 
@@ -19,46 +18,36 @@ with open(puzzle_file, 'r') as puzzle_in:
 
 puzzle_in.close();
 
-def update_iterator (offset, len_list, iterator):
-    if offset%len_list > 0:
-        iterator= itertools.islice(iterator, offset%len_list , None);
-    return iterator;
-
-def make_iterator ( list_len, offset = 0):
-    it = itertools.cycle([x for x in range(list_len)]);
-    if offset > 0:
-        it = update_iterator(offset, list_len, it);
-    return it;
-
 def calc_new_pos (index, cb_len, offset):
-    it = make_iterator ( cb_len, (index + offset));
+    np = index
+    # from cur pos, move by offset
+    # if the offsset is bigger than remaining part of buffer
+    # wrap around
 
-    return next(it) + 1;
+    if offset % cb_len <= cb_len -(index + 1):
+        np = index + (offset % cb_len) + 1
+    else:
+        # calculate, num of tile to wrap
+        np = (offset % cb_len ) - (cb_len - (index + 1))
 
+    return np
 
-max_num = 2017;
-# max_num = int(50E6);
-circ_buff = [0];
-
+max_num = int(50E6);
+circ_buf_len = 1;
 cur_index = 0;
 num_to_store = 1;
+val_at_p1   = None;
 
 print ("spinlock starts....")
-while num_to_store < max_num + 1:
-    if not num_to_store%10000:
-        print ("iteration %d, still %d left" %(num_to_store, (max_num - num_to_store)))
+# we need to stop at 50th million operation and get the status before insert happens
+while num_to_store < max_num :
     # spinlock moves forward
 
-    cur_index = calc_new_pos (cur_index,len(circ_buff), offset);
-    # print ("number %d to be stored at index %d" %(num_to_store,cur_index));
-    circ_buff.insert( cur_index, num_to_store);
+    cur_index = calc_new_pos (cur_index,circ_buf_len, offset);
+    if cur_index == 1:
+        val_at_p1 = num_to_store;
 
-    # print (num_to_store, len(circ_buff), circ_buff[:10]);
-    # input ("press enter");
-    # cur_index = num_to_store;
     num_to_store += 1
+    circ_buf_len += 1
 
-print ("the tile next to 0 is: ", circ_buff[circ_buff.index(2017) + 1 ]);
-
-
-
+print ("the tile next to 0 is: ", val_at_p1 );
