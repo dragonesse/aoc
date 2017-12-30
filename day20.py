@@ -13,7 +13,6 @@ else:
     puzzle_file = sys.argv[1];
 
 def split_coord (vect):
-    # list(map((lambda x: x + 100), casualties))
     return list(map(lambda x: int(x), vect.split(",")));
 
 
@@ -30,27 +29,19 @@ with open(puzzle_file, 'r') as puzzle_in:
 
         [ pvect,vvect,avect] = pattern_vect.match(cur_line).groups();
 
-        position.append(split_coord(pvect));
+        # need to store position as a string to leverage later
+        # clist counter and keys
+        position.append(pvect);
         velocity.append(split_coord(vvect));
         acceleration.append(split_coord(avect));
 
 puzzle_in.close();
 
-min_dist = sys.maxsize;
-particle    = 0;
-distance = [0] * len(position)
-# for i in range(len(position)):
-#     distance[i] += sum(list(map((lambda x: math.fabs(x)), position[i])))
-
-# this is an arbitratry value, the algorithm shall compare for how long
-# the new winner stays on position and stop when new winner will
-# stay longer than previous one
-for k in range(330):
-    print ("===== round %d \n" %(k))
+# this is an empiric value of iterations, after which no more collissions appear
+for k in range(50):
+    print ("===== round %d, num particles %d \n" %(k, len(position)))
     for i in range(len(position)):
-        # print   (position[i], velocity[i],acceleration[i]);
-        # d = distance[i]
-        # print ("distance before: %d" %(distance[i]))
+        p = split_coord(position[i])
         for axis in range(3):
             # Increase the X velocity by the X acceleration.
             # Increase the Y velocity by the Y acceleration.
@@ -60,22 +51,20 @@ for k in range(330):
             # Increase the X position by the X velocity.
             # Increase the Y position by the Y velocity.
             # Increase the Z position by the Z velocity.
-            position[i][axis] = position[i][axis] + velocity[i][axis]
-        distance[i] = math.fabs(position[i][0]) + math.fabs(position[i][1]) + math.fabs(position[i][2])
-    print (distance.index(min(distance)))
-    if particle != distance.index(min(distance)):
-        particle = distance.index(min(distance))
-        k += 1;
-    else:
-        print ("the particle %d won again! Iteration %d" %(particle,k))
-        # break;
+            p[axis] = p[axis] + velocity[i][axis]
+        # convert the position to a fromat that allows manipulations on the list
+        position [i] = ','.join(map(str,p))
 
-        # print ("after calculations: ", position[i])
-        # calculate distance from <0,0,0>
-# for i in range(len(position)):
-    # distance[i] = sum(list(map((lambda x: math.fabs(x)), position[i])))
+    # after all particles moved, it's time to verify whether there are any collisons
+    # and remove particles that are in the same position
+    freqs = {''.join(i):position.count(i) for i in position}
 
-    # print ("the distance of particle id %d after is %d" %(i , distance[i]));
+    for k in freqs.keys():
+        if freqs[k] != 1:
+            print ("removing %d colliding particles from position " %(freqs[k]), position[position.index(k)])
+            for c in range (freqs[k]):
+                velocity.pop(position.index(k))
+                acceleration.pop(position.index(k))
+                position.remove(k)
 
-
-print ("the partcile %d was closest to 0.0.0" %(distance.index(min(distance))))
+print ("number of partitions left: %d" %(len(position)))
