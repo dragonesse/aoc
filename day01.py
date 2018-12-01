@@ -16,8 +16,7 @@ else:
 drift_steps = []
 
 with open(puzzle_file, 'r') as puzzle_in:
-    for cur_line in puzzle_in:
-        drift_steps = [int(line) for line in puzzle_in]
+    drift_steps = [int(cur_line) for cur_line in puzzle_in]
 puzzle_in.close()
 
 print (drift_steps)
