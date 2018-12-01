@@ -1,3 +1,3 @@
 # aoc
-Source code of challenges resolved during AOC2016, 2017
+Source code of challenges resolved during AOC events
 http://adventofcode.com
