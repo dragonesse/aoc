@@ -30,4 +30,28 @@ for box_num in box_ids:
     if 3 in tag_summary.values():
         total_triples += 1
 
+# examine tags' similarity
+chars_evidence = {}
+for box_tag in box_ids:
+
+    #now we have a list without element taken to comparison
+    for box_to_check in box_ids:
+        common_chars = ""
+        diff_cntr = 0
+        for pos in range (len(box_tag)):
+            if box_tag[pos] == box_to_check[pos]:
+                common_chars = common_chars + box_tag[pos]
+            else:
+                diff_cntr += 1
+                if diff_cntr > 1:
+                    # no point to do more checks
+                    break
+
+        if diff_cntr == 1:
+            if common_chars not in chars_evidence:
+                chars_evidence[common_chars] = 1
+            else:
+                chars_evidence[common_chars] = chars_evidence[common_chars] + 1
+
 print ("The checksum is: %d" %(total_triples*total_dupes))
+print ("The most popular sequence is: ", Counter(chars_evidence).most_common(5))
