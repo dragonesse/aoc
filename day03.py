@@ -18,7 +18,8 @@ papavero_forms = []
 
 # sample form expected on input
 #1 @ 1,3: 4x4
-split_pattern = re.compile(r'^.*(\d+).*\@.*(\d+),(\d+):.*(\d+)x(\d+)$')
+#1 @ 286,440: 19x24
+split_pattern = re.compile(r'^#(\d+)\s*\@\s*(\d+),(\d+):\s*(\d+)x(\d+)$')
 with open(puzzle_file, 'r') as puzzle_in:
     for cur_line in puzzle_in:
         cut_id = re.split(split_pattern,cur_line.strip("\n"))
