@@ -12,22 +12,19 @@ if(len(sys.argv) == 1):
 else:
     puzzle_file = sys.argv[1];
 
+# sample form expected on input:
+#1 @ 286,440: 19x24
+split_pattern = re.compile(r'^#(\d+)\s*\@\s*(\d+),(\d+):\s*(\d+)x(\d+)$')
 
 #open file
 papavero_forms = []
 
-# sample form expected on input
-#1 @ 1,3: 4x4
-#1 @ 286,440: 19x24
-split_pattern = re.compile(r'^#(\d+)\s*\@\s*(\d+),(\d+):\s*(\d+)x(\d+)$')
 with open(puzzle_file, 'r') as puzzle_in:
     for cur_line in puzzle_in:
         cut_id = re.split(split_pattern,cur_line.strip("\n"))
         papavero_forms.append( cut_id[1:6])
 
 puzzle_in.close()
-
-# print (papavero_forms)
 
 fabric = {}
 def occupied_space(offset_left, offset_top, width, length):
@@ -42,41 +39,36 @@ def occupied_space(offset_left, offset_top, width, length):
 
     return patches
 
-non_overlap_candidate = ""
-non_overlap_sheet = []
+#id-sheet map
+non_overlap_candidate = {}
 for [claim_id,left,top,w,h] in papavero_forms:
-    # print ("processing piece ", [left,top,w,h])
     sheet = occupied_space(left,top,w,h)
-    # print ("checking overlaps")
+    overlap = False
+    cand_to_del = []
     for patch in sheet:
-        overlap = False
         if patch not in fabric:
-            # print ("adding %s to fabric inventory" %(patch))
             fabric[patch] = 1
         else:
-            # print("found an overlap on %s" %(sheet))
             overlap = True
             fabric[patch] = fabric[patch] + 1
-            # check as well if we did not hit the potentially non-overlapping piece
-            if patch in non_overlap_sheet:
-                non_overlap_candidate = ""
-                non_overlap_sheet = []
+            # check potential overlap with non-overlapping (yet) pieces
+            for cand_id, cand_sheet in non_overlap_candidate.items():
+                if patch in cand_sheet:
+                    if cand_id not in cand_to_del:
+                        cand_to_del.append(cand_id)
+
+    # can't modify dictionary inside the loop
+    for cand_id in cand_to_del:
+        del non_overlap_candidate[cand_id]
     if not overlap:
-        non_overlap_candidate = claim_id
-        non_overlap_sheet = sheet
+        non_overlap_candidate[claim_id] = sheet.copy()
 
 # we suppose to have by now a dictionary, with key as piece of fabric and value,
-# how frequently it is refernced. To find a number of overlapping inches
+# how frequently it is referenced. To find a number of overlapping inches
 # from the size of patches, substract the ones with single reference
-single_use = 0
-# for i in fabric.values():
-#     if i == 1:
-#         single_use += 1
 
 single_use = Counter(fabric.values()).most_common()[0][1]
-print (single_use)
-
 overlap_size = len(fabric) - single_use
 
 print ("The size of overlap is %d inches" %(overlap_size))
-print ("The non-ovelaping piece is %s" %(non_overlap_candidate))
+print ("The non-ovelaping piece is %s" %(non_overlap_candidate.keys()))
