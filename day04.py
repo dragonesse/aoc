@@ -34,11 +34,6 @@ puzzle_in.close()
 
 night_events = sorted(night_events)
 
-# for event in night_events:
-#     print (event[0].isoformat(" "), event[1])
-
-print (guard_ids)
-
 guard_watch = {}
 
 for guard in guard_ids:
@@ -47,20 +42,15 @@ for guard in guard_ids:
         if guard in night_events[log_index][1]:
             print ("guard # %s begins shift" %(guard))
             while "falls" in night_events[log_index + 1][1] :
-                print ("found guard %s sleepy" %(guard))
+                #found guard sleepy
                 start_sleep = night_events[log_index + 1][0].time().minute
                 stop_sleep = night_events[log_index + 2][0].time().minute
-                print ("sleep time from %d to %d" %(start_sleep,stop_sleep))
                 for minute in range (start_sleep,stop_sleep):
                     guard_watch[guard][minute] += 1
                 log_index += 2
                 print (log_index, len(night_events))
                 if log_index >= len(night_events)-1:
-                    print("hit end of the list")
                     break
-
-# for g in guard_watch.items():
-#     print (g)
 
 # by now, there should be a map with guard ID and its sleeping schedule
 # find most sleepy guy
@@ -68,12 +58,23 @@ sleeper = [0,0]
 for guard in guard_watch.keys():
     sleep_time = sum(guard_watch[guard])
     if sleep_time > sleeper[1]:
-        print ("have new sleepy id: %s minutes: %d" %(guard,sleep_time))
         sleeper[0] = int(guard)
         sleeper[1] = sleep_time
 
 # choose the most probable minute
 most_hits = max(guard_watch[str(sleeper[0])])
 most_likely_sleep = guard_watch[str(sleeper[0])].index(most_hits)
+
+# choose most probable guard
+sleeping_freq = []
+for guard in guard_watch.keys():
+    most_naps = max(guard_watch[guard])
+    most_sleepy_minute = guard_watch[guard].index(most_naps)
+    sleeping_freq.append( [most_naps,most_sleepy_minute,int(guard)])
+
+sleeping_freq = sorted(sleeping_freq,reverse =True)
+
+
 print ("The winner is guard %d who slept %d minutes, %d" %(sleeper[0],sleeper[1],sleeper[0]*most_likely_sleep))
+print ("The winner is guard %d that slept for %d times in minute %d, %d" %(sleeping_freq[0][2], sleeping_freq[0][0], sleeping_freq[0][1], sleeping_freq[0][2]*sleeping_freq[0][1]))
 
