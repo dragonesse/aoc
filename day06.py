@@ -1,7 +1,7 @@
 import sys
-import re
+import string
 
-print("Day 5 puzzle: Alchemical Reduction");
+print("Day 6 puzzle: Chronal Coordinates");
 
 #read input
 puzzle_file = "";
@@ -12,67 +12,23 @@ else:
     puzzle_file = sys.argv[1];
 
 #open file
-polymer = ""
+coordinates = []
 
 with open(puzzle_file, 'r') as puzzle_in:
-    polymer = puzzle_in.readline().strip("\n")
+
+    for cur_line in puzzle_in:
+        x = int(cur_line.split(",")[0].strip())
+        y = int(cur_line.split(",")[1].strip())
+        coordinates.append([x,y])
 puzzle_in.close()
 
-def are_complementary (ch1, ch2):
-    if ch1 == "" or ch2 == "":
-        return False
-    else:
-        return abs(ord(ch1) - ord(ch2)) == 32
+print (coordinates)
 
-def is_in_range (index,last_elem):
-    return index <= last_elem
+sorted_by_y = sorted(coordinates, key=lambda x:x[1])
+sorted_by_x = sorted(coordinates, key=lambda x:x[0])
+[min_y, max_y] = [sorted_by_y[0][1],sorted_by_y[1][1]]
+[min_x, max_x] = [sorted_by_x[0][0],sorted_by_x[0][1]]
 
-def get_unit (index, chain):
-    if is_in_range(index, len(chain) -1):
-        return chain[index]
-    else:
-        return ""
+[top_c,left_c,right_c,down_c] = [sorted_by_y[0],sorted_by_x[0],sorted_by_x[-1],sorted_by_y[-1]]
 
-def remove_units (unit,polymer):
-    return  re.sub (r'[%s]'%unit,"",polymer,flags=re.IGNORECASE)
-
-def reduce_polymer (polymer):
-    steady_chain = ""
-    i = 0
-    boundary = len(polymer)-1
-    while is_in_range(i, boundary):
-        red = False
-
-        if i == boundary:
-            #this is last item, copy
-            steady_chain += polymer[i]
-            break
-
-        # compare i and i+1 char
-        while are_complementary (get_unit(i,polymer),get_unit(i+1,polymer)):
-            # reduce
-            red = True
-            i=i+2
-
-        # check if matches the last from steady
-        while are_complementary (get_unit(i,polymer),steady_chain[-1:]):
-            steady_chain = steady_chain[:-1]
-            red = True
-            i += 1
-
-        if not red:
-            steady_chain += polymer[i]
-            i = i+1
-    return steady_chain
-
-print ("The original steady chain is %d units long" %(len(reduce_polymer(polymer))))
-
-units = [chr(x) for x in range(97,123)]
-
-exp_results = []
-for u in units:
-    exp_results.append([len(reduce_polymer(remove_units(u,polymer))),u])
-
-exp_results = sorted(exp_results)
-
-print ("The best modification is to remove %s unit, the length is %d" %(exp_results[0][1], exp_results[0][0]))
+print ("top left right down", top_c,left_c,right_c,down_c)
