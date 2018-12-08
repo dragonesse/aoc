@@ -31,25 +31,49 @@ for i in ikea_booklet.keys():
 
 def can_execute_step (step, instructions):
     # we can proceed with a step, if its children are on list of values only once
-    print ("-----validating step %s " %(step))
+    # print ("-----validating step %s " %(step))
     num_hits = 0
     for v in instructions.values():
-       print ("checking value %s for presence of %s" %(v,step))
+       # print ("checking value %s for presence of %s" %(v,step))
        if v.count(step) > 0 :
             num_hits += 1
 
     return num_hits == 0
 
-# find the master parent
-parent = []
-for p in ikea_booklet.keys():
-    if can_execute_step(p,ikea_booklet):
-        parent.append(p)
+def find_independent_steps (instructions):
+    step_list = []
+    for s in instructions.keys():
+        if can_execute_step(s,instructions):
+            step_list.append(s)
+    print ("following steps are independent: %s" %(step_list))
+    return step_list
 
-print ("following steps are independent: %s" %(parent))
+def execute_step (step,instructions):
+    if step in instructions.keys():
+        return instructions.pop(step)
+    else:
+        return ""
 
+def build_sleight (steps, instructions,path):
+    sequence = ""
+
+    print ("available steps ",steps)
+
+    for s in sorted(steps):
+        print ("removing the step %s from global set" %(s))
+        followers = execute_step(s,instructions)
+        sequence += s
+        for f in followers:
+            if can_execute_step(f,instructions):
+               sequence += build_sleight(f,instructions,s)
+
+    return sequence
 
 build_sequence = ""
+exp_num_steps  = len(ikea_booklet)
+
+
+build_sequence = build_sleight(find_independent_steps(ikea_booklet), ikea_booklet,"")
 
 
 print ("The order of tasks is: ", build_sequence)
