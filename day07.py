@@ -54,27 +54,27 @@ def execute_step (step,instructions):
     else:
         return ""
 
-def build_sleight (steps, instructions,path):
+def build_sleight (steps, instructions):
     sequence = ""
 
-    print ("available steps ",steps)
+    print ("building sleight from available steps: ",steps)
 
     for s in sorted(steps):
-        print ("removing the step %s from global set" %(s))
-        followers = execute_step(s,instructions)
-        sequence += s
-        for f in followers:
-            if can_execute_step(f,instructions):
-               sequence += build_sleight(f,instructions,s)
+        if can_execute_step(s,instructions):
+            print ("%s analysis, removing the step %s from global set" %(steps,s))
+
+            followers = execute_step(s,instructions)
+            print ("steps unblocked by %s: " %(s),[followers])
+            if s not in sequence:
+                sequence += s
+            if len(followers) > 0:
+                sequence += build_sleight(followers,instructions)
+        else:
+            print ("it's not time for %s yet" %(s))
 
     return sequence
 
-build_sequence = ""
-exp_num_steps  = len(ikea_booklet)
-
-
-build_sequence = build_sleight(find_independent_steps(ikea_booklet), ikea_booklet,"")
-
+build_sequence = build_sleight(find_independent_steps(ikea_booklet), ikea_booklet)
 
 print ("The order of tasks is: ", build_sequence)
 
