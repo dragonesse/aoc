@@ -52,27 +52,38 @@ def execute_step (step,instructions):
     if step in instructions.keys():
         return instructions.pop(step)
     else:
-        return ""
+        return None
 
 def build_sleight (steps, instructions):
     sequence = ""
+    followers = steps
+    while followers is not None:
+        # if len(steps) < 1:
+        #     break
+        print ("building sleight from available steps: ",steps)
 
-    print ("building sleight from available steps: ",steps)
+        for s in sorted(steps):
+            if can_execute_step(s,instructions):
+                print ("%s analysis, removing the step %s from global set" %(steps,s))
 
-    for s in sorted(steps):
-        if can_execute_step(s,instructions):
-            print ("%s analysis, removing the step %s from global set" %(steps,s))
-
-            followers = execute_step(s,instructions)
-            print ("steps unblocked by %s: " %(s),[followers])
-            if s not in sequence:
-                sequence += s
-            if len(followers) > 0:
+                followers = execute_step(s,instructions)
+                print ("steps unblocked by %s: " %(s),[followers])
+                if s not in sequence:
+                    sequence += s
+                # if followers is not None:
+                print ("we try hard with next round")
                 sequence += build_sleight(followers,instructions)
-        else:
-            print ("it's not time for %s yet" %(s))
+                # else:
+                #     break
+            else:
+                print ("it's not time for %s yet" %(s))
+                steps = find_independent_steps(instructions)
+                break
 
     return sequence
+
+i = {'F':'E'}
+build_sequence = build_sleight(find_independent_steps(i),i)
 
 build_sequence = build_sleight(find_independent_steps(ikea_booklet), ikea_booklet)
 
