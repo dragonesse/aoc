@@ -25,7 +25,7 @@ x_end,y_end = 300, 300
 def get_rack_ID (x):
     return x+10
 
-def calc_power_level (x,y,grid_no):
+def calc_cell_power (x,y,grid_no):
     rack_ID = get_rack_ID(x)
     power_lvl = (rack_ID*y + grid_no)*rack_ID
     return get_hundrets(power_lvl) - 5
@@ -33,7 +33,28 @@ def calc_power_level (x,y,grid_no):
 def get_hundrets (num):
     return int(str(num)[-3])
 
-print(calc_power_level(3,5,8))
-print(calc_power_level(122,79,57))
-print(calc_power_level(217,196,39))
-print(calc_power_level(101,153,71))
+print(calc_cell_power(3,5,8))
+print(calc_cell_power(122,79,57))
+print(calc_cell_power(217,196,39))
+print(calc_cell_power(101,153,71))
+
+def calc_block_power(xtop,ytop,grid_no):
+    power = 0
+    for xoffs in range(3):
+        for yoffs in range (3):
+            power += calc_cell_power(xtop  +xoffs, ytop + yoffs,grid_no)
+
+block_size = 3
+max_power = 0
+block_top = [-1,-1]
+
+grid_serial_no = 18
+
+for x in range (x_end - block_size):
+    for y in range (y_end - block_size)
+        pwr = calc_block_power(x+1,y+1,grid_serial_no)
+        if pwr > max_power:
+            max_power = pwr
+            block_top = [x+1,y+1]
+
+print ("The biggest power block begins at: " block_top)
