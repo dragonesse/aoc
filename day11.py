@@ -33,28 +33,29 @@ def calc_cell_power (x,y,grid_no):
 def get_hundrets (num):
     return int(str(num)[-3])
 
-print(calc_cell_power(3,5,8))
-print(calc_cell_power(122,79,57))
-print(calc_cell_power(217,196,39))
-print(calc_cell_power(101,153,71))
+# print(calc_cell_power(3,5,8))
+# print(calc_cell_power(122,79,57))
+# print(calc_cell_power(217,196,39))
+# print(calc_cell_power(101,153,71))
 
 def calc_block_power(xtop,ytop,grid_no):
     power = 0
     for xoffs in range(3):
         for yoffs in range (3):
             power += calc_cell_power(xtop  +xoffs, ytop + yoffs,grid_no)
+    return power
 
 block_size = 3
 max_power = 0
 block_top = [-1,-1]
 
-grid_serial_no = 18
+# grid_serial_no = 42
 
 for x in range (x_end - block_size):
-    for y in range (y_end - block_size)
+    for y in range (y_end - block_size):
         pwr = calc_block_power(x+1,y+1,grid_serial_no)
         if pwr > max_power:
             max_power = pwr
             block_top = [x+1,y+1]
 
-print ("The biggest power block begins at: " block_top)
+print ("The biggest power block begins at: ", block_top)
