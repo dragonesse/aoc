@@ -55,13 +55,19 @@ set_front_buffer(init_state)
 
 print (''.join(init_state))
 
+def compare_with_pattern (pattern,state,offset):
+    return ( pattern in ''.join(state))
 
 num_gen = 20
 next_state = ["."]*len(init_state)
 
 pot_offs = 4
-
-for ng in range(num_gen):
+# after some time, the pattern repats and just moves one position right for each generation
+# pattern = "#.#.....#.#.....#.#.........#.#.....#.#..........#.#.....#.#....#.#........#.#......#.#"
+pattern = "#.##.##.##..##.##.##.##.##.##.##.##..##.##.#....................#.##.##.##.#..##.##..##.##.##.##.##.##.#.......#.##.##.#...................#.##.##.##.##.##.##.##.#.......#.##.##.#"
+# for ng in range(num_gen):
+ng = 0
+while True:
     num_pots = len(init_state)
     for pn in range (num_pots-2):
 
@@ -71,29 +77,44 @@ for ng in range(num_gen):
         else:
             pk= get_LLCRR_key(pn,next_state)
             set_plant_next_state(pn,get_plant_next_state(pk,game_of_life),init_state)
+
     if ng%2 == 0:
         print (''.join(next_state))
+        if compare_with_pattern(pattern,next_state,pot_offs):
+            print ("After %d generations, pattern appears" %(ng))
+            print(''.join(pattern))
+            print(''.join(next_state))
+            break
         if set_rear_buffer(next_state):
             set_rear_buffer(init_state,True)
         if set_front_buffer(next_state):
             set_front_buffer(init_state,True)
             pot_offs += 4
+
     else:
         print (''.join(init_state))
+        if compare_with_pattern(pattern,init_state,pot_offs):
+            print ("After %d generations, pattern appears" %(ng))
+            print(''.join(pattern))
+            print(''.join(next_state))
+            break
+
         if set_rear_buffer(init_state):
             set_rear_buffer(next_state, True)
         if set_front_buffer(init_state):
             set_front_buffer(next_state, True)
             pot_offs += 4
+    ng += 1
 
 # calculate the sum
+num_gen = 50000000000
 total = 0
-# print ("pot offs" , pot_offs)
+
 for i in range(len(init_state)):
     if init_state[i] =="#":
         # print ("pot index: %d" %(i-pot_offs))
 
-        total += i - pot_offs
+        total += (i - pot_offs) + (num_gen - ng + 1)
 
-print ("The total is: %d" %(total))
+print ("The total after %d generations is: %d" %(num_gen,total))
 
