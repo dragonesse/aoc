@@ -81,7 +81,7 @@ while True:
     if ng%2 == 0:
         print (''.join(next_state))
         if compare_with_pattern(pattern,next_state,pot_offs):
-            print ("After %d generations, pattern appears" %(ng))
+            print ("After %d generations, pattern appears next st contain pattern" %(ng))
             print(''.join(pattern))
             print(''.join(next_state))
             break
@@ -110,11 +110,14 @@ while True:
 num_gen = 50000000000
 total = 0
 
-for i in range(len(init_state)):
-    if init_state[i] =="#":
-        # print ("pot index: %d" %(i-pot_offs))
+print ("pot offs: %d" %(pot_offs))
+
+for i in range(len(next_state)):
+    if next_state[i] =="#":
+        print ("pot index: %d" %(i-pot_offs))
 
         total += (i - pot_offs) + (num_gen - ng + 1)
 
 print ("The total after %d generations is: %d" %(num_gen,total))
-
+print (total < 4049999998656)
+print (total > 3999999998757)
