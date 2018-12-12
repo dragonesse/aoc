@@ -33,29 +33,35 @@ def calc_cell_power (x,y,grid_no):
 def get_hundrets (num):
     return int(str(num)[-3])
 
-# print(calc_cell_power(3,5,8))
-# print(calc_cell_power(122,79,57))
-# print(calc_cell_power(217,196,39))
-# print(calc_cell_power(101,153,71))
-
-def calc_block_power(xtop,ytop,grid_no):
+def calc_block_power(xtop,ytop,grid_no,block_size):
     power = 0
-    for xoffs in range(3):
-        for yoffs in range (3):
+    for xoffs in range(block_size):
+        for yoffs in range (block_size):
             power += calc_cell_power(xtop  +xoffs, ytop + yoffs,grid_no)
     return power
 
-block_size = 3
+max_block_size = 300
 max_power = 0
 block_top = [-1,-1]
+square_size = 0
+# grid_serial_no = 18
 
-# grid_serial_no = 42
+#this iterates from 1 to 299
+for block_size in range(1, max_block_size):
+    for x in range (x_end - block_size):
+        for y in range (y_end - block_size):
+            pwr = calc_block_power(x+1, y+1, grid_serial_no, block_size)
+            if pwr > max_power:
+                max_power = pwr
+                block_top = [x+1,y+1]
+                square_size = block_size
 
-for x in range (x_end - block_size):
-    for y in range (y_end - block_size):
-        pwr = calc_block_power(x+1,y+1,grid_serial_no)
-        if pwr > max_power:
-            max_power = pwr
-            block_top = [x+1,y+1]
+# handle 300x300 case
+pwr = calc_block_power(x_start,y_start,grid_serial_no, max_block_size)
+if pwr > max_power:
+    max_power = pwr
+    block_top = [x_start,y_start]
+    square_size = max_block_size
 
-print ("The biggest power block begins at: ", block_top)
+
+print ("The biggest power block begins at: ", block_top, "size: %d, level %d" %(square_size,max_power))
