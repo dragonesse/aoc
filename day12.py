@@ -56,55 +56,53 @@ set_front_buffer(init_state)
 print (''.join(init_state))
 
 def compare_with_pattern (pattern,state,offset):
-    return ( pattern in ''.join(state))
+    return ( pattern in ''.join(state) if pattern is not None else False)
 
 num_gen = 20
 next_state = ["."]*len(init_state)
 
 pot_offs = 4
+
 # after some time, the pattern repats and just moves one position right for each generation
-# pattern = "#.#.....#.#.....#.#.........#.#.....#.#..........#.#.....#.#....#.#........#.#......#.#"
-pattern = "#.##.##.##..##.##.##.##.##.##.##.##..##.##.#....................#.##.##.##.#..##.##..##.##.##.##.##.##.#.......#.##.##.#...................#.##.##.##.##.##.##.##.#.......#.##.##.#"
-# for ng in range(num_gen):
+pattern = None
+
 ng = 0
 while True:
     num_pots = len(init_state)
+    ng += 1
+
     for pn in range (num_pots-2):
 
-        if ng%2 == 0:
+        if ng%2 != 0:
             pk= get_LLCRR_key(pn,init_state)
             set_plant_next_state(pn,get_plant_next_state(pk,game_of_life),next_state)
         else:
             pk= get_LLCRR_key(pn,next_state)
             set_plant_next_state(pn,get_plant_next_state(pk,game_of_life),init_state)
 
-    if ng%2 == 0:
-        print (''.join(next_state))
+    if ng%2 != 0:
         if compare_with_pattern(pattern,next_state,pot_offs):
             print ("After %d generations, pattern appears next st contain pattern" %(ng))
-            print(''.join(pattern))
-            print(''.join(next_state))
             break
+        else:
+            pattern = ''.join(next_state).strip('.')
         if set_rear_buffer(next_state):
             set_rear_buffer(init_state,True)
         if set_front_buffer(next_state):
             set_front_buffer(init_state,True)
             pot_offs += 4
-
     else:
-        print (''.join(init_state))
         if compare_with_pattern(pattern,init_state,pot_offs):
             print ("After %d generations, pattern appears" %(ng))
-            print(''.join(pattern))
-            print(''.join(next_state))
             break
+        else:
+            pattern = ''.join(init_state).strip('.')
 
         if set_rear_buffer(init_state):
             set_rear_buffer(next_state, True)
         if set_front_buffer(init_state):
             set_front_buffer(next_state, True)
             pot_offs += 4
-    ng += 1
 
 # calculate the sum
 num_gen = 50000000000
@@ -112,12 +110,9 @@ total = 0
 
 print ("pot offs: %d" %(pot_offs))
 
-for i in range(len(next_state)):
-    if next_state[i] =="#":
-        print ("pot index: %d" %(i-pot_offs))
-
-        total += (i - pot_offs) + (num_gen - ng + 1)
+for i in range(len(init_state)):
+    if init_state[i] =="#":
+        #the first non-empty pot moves one position forward, each iteration
+        total += (i - pot_offs) + (num_gen - ng )
 
 print ("The total after %d generations is: %d" %(num_gen,total))
-print (total < 4049999998656)
-print (total > 3999999998757)
