@@ -189,18 +189,54 @@ test_set = {
     "15" : test_setr
 }
 
+order_mapping={}
+
 num_orders = 16
 num_ambiguous = 0
 for i in range(len(init_states)):
     num_matches = 0
+    print ("init state: ", init_states[i])
+    print ("result : ", results[i])
+    print ("command: ", sequence[i])
+
     for j in range(num_orders):
-        print ("init state: ", init_states[i])
-        print ("result : ", results[i])
-        print ("command: ", sequence[i])
+        order_name = test_set[str(j)].__name__.split("_")[1]
+        order_num = str(sequence[i][0])
+        print("--- testing compiance with %s" %(order_name))
         if test_set[str(j)](init_states[i],results[i],sequence[i]):
             num_matches +=1
+            if order_num in order_mapping.keys():
+                if order_name not in order_mapping[order_num]:
+                    print ("adding mapping to existing entry")
+                    order_mapping[order_num].append(order_name)
+            else:
+                print ("adding new entry")
+                order_mapping[order_num] = [order_name]
+            # print (order_mapping)
         if num_matches >= 3:
             num_ambiguous += 1
-            break
+            # break
+    # if num_matches == 1:
+    #     order_mapping[str(j)] =  matched_name
 
 print ("number of ambiguous commands is %d " %(num_ambiguous))
+for k in sorted(order_mapping.keys()):
+    print (k, ": ", order_mapping[k])
+
+already_processed = []
+
+elimination = True
+while elimination:
+    elimination = False
+    for k in order_mapping.keys():
+        if len(order_mapping[k]) ==1 and order_mapping[k][0] not in already_processed:
+            order_name = order_mapping[k][0]
+            already_processed.append(order_name)
+            elimination = True
+            print ("found unique entry %s, performing elimination" %(order_name))
+            for v in order_mapping.values():
+                if order_name in v and len(v)>1:
+                    v.remove(order_name)
+
+    for k in sorted(order_mapping.keys()):
+        print (k, ": ", order_mapping[k])
