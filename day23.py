@@ -64,7 +64,6 @@ def cab_distance (spoint,epoint=[0,0,0]):
 
 
 mid_point = round(len(nanorobots)/2)
-print(mid_point)
 sum([x[0] for x in sorted(nanorobots, key=lambda x:x[0])[2:4]])/2
 
 midx = round(sum([x[0] for x in sorted(nanorobots, key=lambda x:x[0])[mid_point-1:mid_point+1]] )/2)
@@ -108,11 +107,13 @@ teleport=[]
 num_in_range = 0
 max_in_range = -1
 new_val = True
+new_dist = True
 jump = step
 empty_checks = 0
-while new_val or step > 1:
+ec_max = 10
+while new_val or new_dist or step > 1:
     new_val = False
-
+    new_dist = False
     print ("generate new surrounding")
     surrounding = generate_surrounding(start_point,jump)
 
@@ -130,18 +131,26 @@ while new_val or step > 1:
             new_val = True
         elif num_in_range == max_in_range:
             if cab_distance(teleport)>cab_distance(s):
-                print("found a point closer to you")
+                print("found a point closer to you, the distance is: %d" %(cab_distance(s)))
                 teleport = [s[0],s[1],s[2]]
-                new_val = True
-    if not new_val:
+                new_dist = True
+    if not new_val or not new_dist:
         empty_checks +=1
 
-    if empty_checks < 10:
+    if empty_checks < ec_max:
         jump += jump
     else:
-        print("select new start_point, change step")
-        start_point = [teleport[0],teleport[1],teleport[2]]
-        step = round(step/2)
-        jump = step
+        if new_val:
+            start_point = [teleport[0],teleport[1],teleport[2]]
+        # elif new_dist and not new_dist:
 
-print (teleport,cab_distance(teleport,[0,0,0]))
+        step = round(step/2)
+        print("select new start_point, change step to %d" %(step))
+        empty_checks = 0
+        jump = step
+        if step<50:
+            ec_max = 20
+
+cd = cab_distance(teleport,[0,0,0])
+print (teleport,cd)
+print(cd > 77852209)
