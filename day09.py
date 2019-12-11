@@ -25,13 +25,10 @@ def get_value (mode, reg_val):
 
     try:
         if mode == 1:
-            print ("direct mode, using value %d: " %(reg_val))
             return reg_val
         elif mode == 0:
-            print ("positional mode, using value %s from reg %d" %(instr_list[reg_val],reg_val))
             return int(instr_list[reg_val])
         else:
-            print ("relative mode, using value %s from reg %d" %(instr_list[reg_val+relative_base],reg_val+relative_base))
             return int(instr_list[reg_val+relative_base])
     except IndexError:
         print ("out of memory access, no cell at address %d returning zero" %(reg_val+relative_base))
@@ -41,71 +38,53 @@ def parse_instr (instr):
     instr = str(instr).rjust(5,"0")
     return [parse_modes(instr[:-2]) ,instr[-2:]]
 
-# perform addition
 def add (val1, val2, position):
-    print (sys._getframe(  ).f_code.co_name)
     insert_result (val1+val2,position)
     return
 
 def multiply (val1, val2, position):
-    print (sys._getframe(  ).f_code.co_name)
     insert_result (val1*val2, position)
     return
 
 def less_than (val1, val2, position):
-    print (sys._getframe(  ).f_code.co_name)
     insert_result (int(val1<val2),position)
     return
 
 def equals (val1, val2, position):
-    print (sys._getframe(  ).f_code.co_name)
     insert_result (int(val1 == val2),position)
     return
 
 def jump_if_true (val1,val2,pointer):
-    print (sys._getframe(  ).f_code.co_name)
     return val2 if val1 != 0 else pointer
 
 def jump_if_false (val1,val2,pointer):
-    print (sys._getframe(  ).f_code.co_name)
     return val2 if val1 == 0 else pointer
 
 def save_input (inp, position,mode):
-    print (sys._getframe(  ).f_code.co_name)
     if mode == 2:
-        print ("inserting in relative mode val %d at position %d" %(inp, position+relative_base))
         insert_result(inp, position+relative_base)
     else:
-        print ("inserting in direct mode val %d at position %d" %(inp,position))
         insert_result(inp, position )
     return
 
 def insert_result (val, position, instr_list = instr_list):
-    print (sys._getframe(  ).f_code.co_name)
-    print ("position %d value %d current size %d" %(position , val, len(instr_list)))
     if position < len(instr_list):
         instr_list [position] = val
     else:
-        print ("Invalid position %d to insert at" %(position))
         for i in range(position - len(instr_list)):
             instr_list += [0]
         instr_list += [val]
-        print ("the last elems", instr_list[-5:], "current size: ", len(instr_list) )
     return
 
 
 def get_val_at_pos (position):
-    print (sys._getframe(  ).f_code.co_name)
     return instr_list[position] if position <= len (instr_list) else -1
 
 def calc_pos_for_insert (position,mode):
-    print (sys._getframe(  ).f_code.co_name)
 
     if mode == 2:
-        print("relative mode")
         return position+relative_base
     elif mode == 0:
-        print ("positional mode, pos %d" %(position))
         return position
     else:
         print ("invalid mode for insert operation")
@@ -139,13 +118,12 @@ orders ={
 
 relative_base = 0
 pos = 0
-test_inp = 1
+test_inp = 2
 test_out =[]
 while instr_list[pos] != "99":
     set_offset = True
+
     [modes , instr] = parse_instr(instr_list[pos])
-    print ("======index: %d modes: %s instr: %s" %(pos,''.join(modes), instr))
-    print ("near cells: ", instr_list[pos+1:pos+4])
 
     v1 = get_value(int(modes[-1]),int(instr_list[pos+1]))
     if is_three_arg_instr(instr):
@@ -158,18 +136,13 @@ while instr_list[pos] != "99":
         if next_pos != pos:
             pos = next_pos
             set_offset = False
-            print ("jumping to position %d" %(pos))
     elif instr == "03":
         v1 = int(instr_list[pos+1])
-        print ("test input is: %d, v1: %d" %(test_inp, v1))
         save_input(test_inp,v1,int(modes[-1]))
-        # save_input(test_inp,v1)
     elif instr == "09":
         relative_base += v1
-        print ("relative base updated to: %d" %(relative_base))
     else:
         test_out += [v1]
-        print ("tests results: ",test_out)
 
     if set_offset:
         offset = calc_offset(instr)
