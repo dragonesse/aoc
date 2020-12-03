@@ -11,18 +11,14 @@ if(len(sys.argv) == 1):
 else:
     puzzle_file = sys.argv[1];
 
-#open file
-
 the_map = []
 
-# sample input: 1-11 h: hhhhchhhhjhph
-
+#open file
 with open(puzzle_file, 'r') as puzzle_in:
     for     cur_line in puzzle_in:
         the_map.append(cur_line.strip().replace(".","0").replace("#","1"))
 
 puzzle_in.close()
-
 
 area_hsize = len(the_map[0])
 area_vsize = len(the_map)
@@ -49,7 +45,6 @@ def move_toboggan (pos,slope):
 trees_counter = 0
 cur_pos = [0,0]
 
-
 slope = [3,1]
 
 while not has_reach_bottom (cur_pos[1],area_vsize):
@@ -68,4 +63,4 @@ for a_slope in more_slopes:
         move_toboggan(cur_pos,a_slope)
     trees_magic *= trees_counter
 
-print ("The trees magic nuber is: %d" %trees_magic)
+print ("The trees magic number is: %d" %trees_magic)
