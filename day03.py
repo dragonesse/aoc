@@ -31,7 +31,6 @@ def has_reach_bottom (y,forrest_y):
     if y>= forrest_y:
         return True
     else:
-        print ("still sliding")
         return False
 
 def has_reach_side (x,forrest_x):
@@ -41,9 +40,7 @@ def has_reach_side (x,forrest_x):
         return False
 
 def move_toboggan (pos,slope):
-    print ("moving sled from",cur_pos)
     if has_reach_side(pos[0] + slope [0], area_hsize):
-        print ("wrap up")
         pos [0] =  (pos[0] + slope [0])-(area_hsize)
     else:
         pos [0] += slope[0]
@@ -59,5 +56,16 @@ while not has_reach_bottom (cur_pos[1],area_vsize):
     trees_counter += int(the_map[cur_pos[1]][cur_pos[0]])
     move_toboggan(cur_pos,slope)
 
-
 print ("Number of hit trees #1: %d" %trees_counter)
+
+more_slopes = [[1,1],[5,1],[7,1],[1,2]]
+trees_magic = trees_counter
+for a_slope in more_slopes:
+    cur_pos = [0,0]
+    trees_counter = 0
+    while not has_reach_bottom (cur_pos[1],area_vsize):
+        trees_counter += int(the_map[cur_pos[1]][cur_pos[0]])
+        move_toboggan(cur_pos,a_slope)
+    trees_magic *= trees_counter
+
+print ("The trees magic nuber is: %d" %trees_magic)
