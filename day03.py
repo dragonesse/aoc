@@ -42,25 +42,22 @@ def move_toboggan (pos,slope):
         pos [0] += slope[0]
     pos [1] += slope [1]
 
-trees_counter = 0
-cur_pos = [0,0]
-
 slope = [3,1]
 
-while not has_reach_bottom (cur_pos[1],area_vsize):
-    trees_counter += int(the_map[cur_pos[1]][cur_pos[0]])
-    move_toboggan(cur_pos,slope)
-
-print ("Number of hit trees #1: %d" %trees_counter)
-
-more_slopes = [[1,1],[5,1],[7,1],[1,2]]
-trees_magic = trees_counter
-for a_slope in more_slopes:
-    cur_pos = [0,0]
+def slide (slope):
     trees_counter = 0
+    cur_pos = [0,0]
     while not has_reach_bottom (cur_pos[1],area_vsize):
         trees_counter += int(the_map[cur_pos[1]][cur_pos[0]])
-        move_toboggan(cur_pos,a_slope)
-    trees_magic *= trees_counter
+        move_toboggan(cur_pos,slope)
+    return trees_counter
+
+trees_magic = slide(slope)
+print ("Number of hit trees #1: %d" %trees_magic)
+
+more_slopes = [[1,1],[5,1],[7,1],[1,2]]
+
+for a_slope in more_slopes:
+    trees_magic *= slide(a_slope)
 
 print ("The trees magic number is: %d" %trees_magic)
