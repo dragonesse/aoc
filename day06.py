@@ -1,5 +1,5 @@
 import sys
-import re
+import utils.inputReaders as ir
 
 print("Day 6 puzzle: Custom Customs");
 
@@ -11,21 +11,7 @@ if(len(sys.argv) == 1):
 else:
     puzzle_file = sys.argv[1];
 
-customs_forms = []
-
-empty_line = re.compile(r'^$')
-
-#open file
-with open(puzzle_file, 'r') as puzzle_in:
-    group_data = ""
-    for cur_line in puzzle_in:
-        if re.search(empty_line,cur_line.strip()) is None:
-            group_data += ' ' + cur_line.strip()
-        else:
-            customs_forms.append(group_data[1:].split(" "))
-            group_data = ""
-    customs_forms.append(group_data[1:].split(" "))
-puzzle_in.close()
+customs_forms = ir.read_multiline_records_as_list_entries(puzzle_file)
 
 def anonimize_group_data (group_data):
     return list(''.join(forms))

@@ -1,6 +1,6 @@
 import sys
 import re
-
+import utils.inputReaders as ir
 print("Day 4 puzzle: Passport Processing");
 
 #read input
@@ -11,21 +11,7 @@ if(len(sys.argv) == 1):
 else:
     puzzle_file = sys.argv[1];
 
-customs_list = []
-
-empty_line = re.compile(r'^$')
-
-#open file
-with open(puzzle_file, 'r') as puzzle_in:
-    passport_data = ""
-    for cur_line in puzzle_in:
-        if re.search(empty_line,cur_line.strip()) is None:
-            passport_data += ' ' + cur_line.strip()
-        else:
-            customs_list.append(passport_data[1:].split(" "))
-            passport_data = ""
-    customs_list.append(passport_data[1:].split(" "))
-puzzle_in.close()
+customs_list = ir.read_multiline_records_as_list_entries(puzzle_file)
 
 #byr (Birth Year)
 #iyr (Issue Year)

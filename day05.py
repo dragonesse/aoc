@@ -1,4 +1,5 @@
 import sys
+import utils.inputReaders as ir
 
 print("Day 5 puzzle: Binary Boarding");
 
@@ -10,14 +11,8 @@ if(len(sys.argv) == 1):
 else:
     puzzle_file = sys.argv[1];
 
-board_passes = []
-
-#open file
-with open(puzzle_file, 'r') as puzzle_in:
-    for cur_line in puzzle_in:
-        board_passes.append(cur_line.strip())
-puzzle_in.close()
-
+#read the file
+board_passes = ir.read_oneline_records_as_list_entries(puzzle_file)
 
 def get_seat_range_by_code(single_code, bound):
     range_half = int(((bound[1] + 1)-bound[0])/2)

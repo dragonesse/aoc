@@ -1,5 +1,5 @@
-import re;
 import sys;
+import utils.inputReaders as ir
 
 print("Day 1 puzzle: Report Repair");
 
@@ -11,13 +11,8 @@ if(len(sys.argv) == 1):
 else:
     puzzle_file = sys.argv[1];
 
-
-#open file
-expenses = []
-
-with open(puzzle_file, 'r') as puzzle_in:
-    expenses = [int(cur_line) for cur_line in puzzle_in]
-puzzle_in.close()
+#read file
+expenses = ir.read_int_records_as_list_entries(puzzle_file)
 
 #level 1 solution
 for i in (range(len(expenses)-1)):

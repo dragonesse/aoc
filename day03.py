@@ -1,5 +1,6 @@
 import sys
-import re
+import utils.inputReaders as ir
+import utils.locationHelpers as lh
 
 print("Day 3 puzzle: Toboggan Trajectory");
 
@@ -11,35 +12,20 @@ if(len(sys.argv) == 1):
 else:
     puzzle_file = sys.argv[1];
 
-the_map = []
-
-#open file
-with open(puzzle_file, 'r') as puzzle_in:
-    for     cur_line in puzzle_in:
-        the_map.append(cur_line.strip().replace(".","0").replace("#","1"))
-
-puzzle_in.close()
+#read file
+the_map = ir.read_map (puzzle_file)
 
 area_hsize = len(the_map[0])
 area_vsize = len(the_map)
 
 def has_reach_bottom (y,forrest_y):
-    if y>= forrest_y:
-        return True
-    else:
-        return False
+    return lh.has_reach_bound(y,forrest_y)
 
 def has_reach_side (x,forrest_x):
-    if x>= forrest_x:
-        return True
-    else:
-        return False
+    return lh.has_reach_bound(x,forrest_x)
 
 def move_toboggan (pos,slope):
-    if has_reach_side(pos[0] + slope [0], area_hsize):
-        pos [0] =  (pos[0] + slope [0])-(area_hsize)
-    else:
-        pos [0] += slope[0]
+    pos [0] = lh.move_one_dimension_wrapped(pos[0],slope[0],area_hsize)
     pos [1] += slope [1]
 
 slope = [3,1]
