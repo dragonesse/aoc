@@ -26,7 +26,9 @@ class memory_state:
     def __init__(self):
         self.global_acc = 0
         self.code_index = 0
-
+    def clear_memory(self):
+        self.global_acc = 0
+        self.code_index = 0
 
 def upd_acc (val,mem):
     mem.global_acc += val
@@ -44,15 +46,8 @@ instructions ={
     "nop" : do_nop
 }
 
-def clear_memory(mem):
-    mem.global_acc = 0
-    mem.code_index = 0
-
 def clear_path ():
     return [False for i in range(len(program_code))]
-
-def load_code(pc):
-    return pc.copy()
 
 mem = memory_state()
 
@@ -71,7 +66,7 @@ for i in range(len(program_code)):
         subs_list += [i]
 
 for inst_ind in subs_list:
-    clear_memory(mem)
+    mem.clear_memory()
     visited_instr = clear_path()
     upd_code = program_code
     org_inst = ""
