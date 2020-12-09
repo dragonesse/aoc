@@ -38,7 +38,6 @@ found_sum = False
 for i in range(stream_index-1):
     grand_total = enc_stream[i]
     sum_list = [enc_stream[i]]
-
     if found_sum:
         # there could be much more items, but no need to continue
         print("bye, bye, nothing else to do")
@@ -56,5 +55,10 @@ for i in range(stream_index-1):
                 print ("found sequence that adds up to %d " %invalid_num, sum_list)
                 print ("the min-max sum is %d" %(min(sum_list)+max(sum_list)))
                 found_sum = True
+                break
+            if grand_total > invalid_num:
+                # exceeded boundary, resetting results
+                grand_total = 0
+                sum_list = []
                 break
 
