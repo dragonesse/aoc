@@ -31,5 +31,42 @@ for i in range (len(adapters)-1):
     elif jolt_diff>3:
         print ("joltage difference in chain is too high")
 
-print ("1-joltage frequency %d, 3-joltage frequency %d" %(one_jolt_cntr,three_jolts_cntr))
-print ("the joltage distribution is: %d" %(one_jolt_cntr*three_jolts_cntr))
+print ("part 1: the joltage distribution is: %d" %(one_jolt_cntr*three_jolts_cntr))
+
+# add meaningless stuff at the end to enable processing
+# last elements in a wider context
+adapters += [max(adapters)+3]
+adapters += [max(adapters)+3]
+adapters += [max(adapters)+3]
+adapters += [max(adapters)+3]
+
+
+i = 0
+num_combinations = 1
+while i < len(adapters) - 4:
+
+    a0, a1 = adapters[i],adapters[i+1]
+    a2, a3 = adapters[i+2], adapters[i+3]
+    a4 = adapters[i+4]
+    # can we remove a1 with keeping rules?
+    if a2 - a0 <=3:
+        #can we remove a2 adapter as well?
+        if a3 - a1 <=3:
+            # can third adapter an a row be removed?
+            if a4-a2 <=3:
+                # removing three elems gives 7 possibilities
+                i+=4
+                num_combinations *=7
+            else:
+                # removal of exactly two elements
+                i+=3
+                num_combinations *=4
+        else:
+        #removal of one element multiplies possibilities by 2
+            i+=1
+            num_combinations *= 2
+    # a1 stays
+    else:
+        i+=1
+
+print ("part 2: num_combinations %d" %(num_combinations))
