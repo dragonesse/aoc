@@ -30,10 +30,8 @@ def move_forward (amount, cur_pos,cur_dir):
     return movements[cur_dir](amount,cur_pos)
 
 def turn_right (amount, cur_dir):
-    # next_left = ["N","W","S","E"]
     next_right=["S","W","N","E"]
     index_now = next_right.index(cur_dir)
-    # init_pos, dist, size
     index_next = lh.move_one_dimension_wrapped(index_now,int(amount/90),4)
     return next_right[index_next]
 
@@ -76,7 +74,7 @@ for mv in directions:
     [cur_pos,cur_dir] = move(move_type,move_dist,cur_pos,cur_dir)
 
 print ("The final position is: ", cur_pos)
-print ("part 1: The distance is: %d" %(abs(cur_pos[0])+abs(cur_pos[1])))
+print ("part 1: The distance is: %d" %(lh.get_manhattan_dist([0,0],cur_pos)))
 
 def get_waypoint_ship_relation (pos_waypoint,pos_ship):
     horiz_relation = ""
@@ -112,7 +110,7 @@ def rotate_1step(new_qarter, pos_ship,pos_waypoint):
 
     return rotation_val[new_qarter]
 
-def rotate_waypoint2(rot_dir,amount, pos_waypoint,pos_ship):
+def rotate_waypoint(rot_dir,amount, pos_waypoint,pos_ship):
     [rh,rv] = get_waypoint_ship_relation(pos_waypoint,pos_ship)
     dist_x = abs(pos_ship[0] -pos_waypoint[0])
     dist_y = abs(pos_ship[1] -pos_waypoint[1])
@@ -163,42 +161,43 @@ for mv in directions:
     if move_type in ["N","S","E","W"]:
         waypoint_pos = movements[move_type](move_dist,waypoint_pos)
     if move_type in ["L", "R"]:
-        waypoint_pos = rotate_waypoint2(move_type,move_dist, waypoint_pos,ship_pos)
+        waypoint_pos = rotate_waypoint(move_type,move_dist, waypoint_pos,ship_pos)
 
 print ("The final position is: ", ship_pos)
 md = lh.get_manhattan_dist([0,0],ship_pos)
 print ("part 2: The distance is: %d" %(md))
 
-print ("----test R1")
-assert rotate_waypoint2 ("R", 90, [10,1], [0,0]) == [1, -10]
-assert rotate_waypoint2 ("R", 180, [10,1], [0,0]) == [-10,-1]
-assert rotate_waypoint2 ("R", 270, [10,1], [0,0]) == [-1, 10]
-print ("----test R2")
-assert rotate_waypoint2 ("R", 90, [1,-10], [0,0]) == [-10,-1]
-assert rotate_waypoint2 ("R", 180, [1,-10], [0,0]) == [-1, 10]
-assert rotate_waypoint2 ("R", 270, [1,-10], [0,0]) == [10,1]
-print ("----test R3")
-assert rotate_waypoint2 ("R", 90, [-10,-1], [0,0]) == [-1,10]
-assert rotate_waypoint2 ("R", 180, [-10,-1],[0,0]) == [10,1]
-assert rotate_waypoint2 ("R", 270, [-10,-1], [0,0]) == [1,-10]
-print ("----test R4")
-assert rotate_waypoint2 ("R", 90, [-1,10],[0,0]) == [10,1]
-assert rotate_waypoint2 ("R", 180, [-1,10],[0,0]) ==[1,-10]
-assert rotate_waypoint2 ("R", 270, [-1,10], [0,0]) == [-10,-1]
+if False:
+    print ("----test R1")
+    assert rotate_waypoint ("R", 90, [10,1], [0,0]) == [1, -10]
+    assert rotate_waypoint ("R", 180, [10,1], [0,0]) == [-10,-1]
+    assert rotate_waypoint ("R", 270, [10,1], [0,0]) == [-1, 10]
+    print ("----test R2")
+    assert rotate_waypoint ("R", 90, [1,-10], [0,0]) == [-10,-1]
+    assert rotate_waypoint ("R", 180, [1,-10], [0,0]) == [-1, 10]
+    assert rotate_waypoint ("R", 270, [1,-10], [0,0]) == [10,1]
+    print ("----test R3")
+    assert rotate_waypoint ("R", 90, [-10,-1], [0,0]) == [-1,10]
+    assert rotate_waypoint ("R", 180, [-10,-1],[0,0]) == [10,1]
+    assert rotate_waypoint ("R", 270, [-10,-1], [0,0]) == [1,-10]
+    print ("----test R4")
+    assert rotate_waypoint ("R", 90, [-1,10],[0,0]) == [10,1]
+    assert rotate_waypoint ("R", 180, [-1,10],[0,0]) ==[1,-10]
+    assert rotate_waypoint ("R", 270, [-1,10], [0,0]) == [-10,-1]
 
-print ("----test L1")
-assert rotate_waypoint2 ("L", 90, [10,1], [0,0]) == [-1, 10]
-assert rotate_waypoint2 ("L", 180, [10,1], [0,0]) == [-10,-1]
-assert rotate_waypoint2 ("L", 270, [10,1], [0,0]) == [1, -10]
-print ("----test L2")
-assert rotate_waypoint2 ("L", 90, [1,-10], [0,0]) == [10,1]
-assert rotate_waypoint2 ("L", 180, [1,-10], [0,0]) == [-1, 10]
-assert rotate_waypoint2 ("L", 270, [1,-10], [0,0]) == [-10,-1]
-print ("----test L3")
-assert rotate_waypoint2 ("L", 90, [-10,-1], [0,0]) == [1,-10]
-assert rotate_waypoint2 ("L", 180, [-10,-1],[0,0]) == [10,1]
-assert rotate_waypoint2 ("L", 270, [-10,-1], [0,0]) == [-1,10]
-print ("----test L4")
-assert rotate_waypoint2 ("L", 90, [-1,10],[0,0]) == [-10,-1]
-assert rotate_waypoint2 ("L", 180, [-1,10],[0,0]) ==[1,-10]
-assert rotate_waypoint2 ("L", 270, [-1,10], [0,0]) == [10,1]
+    print ("----test L1")
+    assert rotate_waypoint ("L", 90, [10,1], [0,0]) == [-1, 10]
+    assert rotate_waypoint ("L", 180, [10,1], [0,0]) == [-10,-1]
+    assert rotate_waypoint ("L", 270, [10,1], [0,0]) == [1, -10]
+    print ("----test L2")
+    assert rotate_waypoint ("L", 90, [1,-10], [0,0]) == [10,1]
+    assert rotate_waypoint ("L", 180, [1,-10], [0,0]) == [-1, 10]
+    assert rotate_waypoint ("L", 270, [1,-10], [0,0]) == [-10,-1]
+    print ("----test L3")
+    assert rotate_waypoint ("L", 90, [-10,-1], [0,0]) == [1,-10]
+    assert rotate_waypoint ("L", 180, [-10,-1],[0,0]) == [10,1]
+    assert rotate_waypoint ("L", 270, [-10,-1], [0,0]) == [-1,10]
+    print ("----test L4")
+    assert rotate_waypoint ("L", 90, [-1,10],[0,0]) == [-10,-1]
+    assert rotate_waypoint ("L", 180, [-1,10],[0,0]) ==[1,-10]
+    assert rotate_waypoint ("L", 270, [-1,10], [0,0]) == [10,1]
