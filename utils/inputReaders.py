@@ -31,6 +31,14 @@ def read_int_records_as_list_entries(input_file):
     puzzle_in.close()
     return out_list
 
+def read_int_sequence_as_list_entries(input_file,separator):
+    out_list = []
+    with open(input_file, 'r') as puzzle_in:
+        for cur_line in puzzle_in:
+            out_list = [int(x) for x in cur_line.strip().split(separator)]
+    puzzle_in.close()
+    return out_list
+
 def read_map(input_file):
     out_map = []
     with open(input_file, 'r') as puzzle_in:
