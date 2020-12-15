@@ -1,6 +1,7 @@
 import sys
 import utils.inputReaders as ir
 import utils.locationHelpers as lh
+import math
 print("Day 13: Shuttle Search");
 
 #read input
@@ -66,28 +67,91 @@ cntr = int(timestamp/h_line)
 timestamp = h_line
 cntr = 1
 
-# timestamp = nearest_bus_depart_time(100000000000000,h_line)
-print (timestamp)
+if len(bus_schedule) > 6:
+    timestamp = nearest_bus_depart_time(100000000000000,h_line) - int(3*h_line)
+    cntr = int(timestamp/h_line)
+    print (timestamp,cntr)
+# sys.exit()
 # for i in range (5):
-while (matching_bus_cntr < len(bus_lines)): # or (timestamp <1068788):
-    if cntr %1000 == 0:
-        print ("==== evaluating timestamp %d" %timestamp)
-    for bus_num in bus_lines[1:]:
-        # print ("evaluating bus %d " %bus_num)
-        bus_offset_from_hline = bus_lines_from_hline[bus_num]
-        exp_dept_time = timestamp+bus_offset_from_hline
-        act_dept_time = nearest_bus_depart_time(exp_dept_time,bus_num)
-        # print ("expected time %d actual time %d diff %d" %(exp_dept_time,act_dept_time, exp_dept_time - act_dept_time))
+if False:
+    while (matching_bus_cntr < len(bus_lines)): # or (timestamp <1068788):
+        if cntr %10000 == 0:
+            print ("==== evaluating timestamp %d" %timestamp)
+        for bus_num in bus_lines[1:]:
+            # print ("evaluating bus %d " %bus_num)
+            bus_offset_from_hline = bus_lines_from_hline[bus_num]
+            exp_dept_time = timestamp+bus_offset_from_hline
+            act_dept_time = nearest_bus_depart_time(exp_dept_time,bus_num)
+            # print ("expected time %d actual time %d diff %d" %(exp_dept_time,act_dept_time, exp_dept_time - act_dept_time))
+
+            if act_dept_time == exp_dept_time:
+                # print ("bus %d matches the schedule" %bus_num)
+                matching_bus_cntr += 1
+            else:
+                # print( "at least one bus does not fit the schedule")
+                matching_bus_cntr = 1
+                cntr +=1
+                timestamp = cntr*h_line
+                break
+        # print ("%d buses matching for timestamp %d" %(matching_bus_cntr, timestamp))
+
+    print ("part 1: timestamp normalized versus timetable %d" %(timestamp+bus_lines_from_hline[int(bus_schedule[0])]))
+
+sec_line = bus_lines[1]
+
+
+sec_line = bus_lines[1]
+bus_offset = bus_lines_from_hline[sec_line]
+ts_sched =[]
+t_offs = 0
+
+if len(bus_schedule) > 6:
+    aoc_hint = 99999999456533
+    t_offs = nearest_bus_depart_time(aoc_hint,h_line) - int(5*h_line)
+    cntr = int(timestamp/h_line)
+    print (timestamp,cntr)
+# sys.exit()
+ts_hl = t_offs
+
+while len(ts_sched)<2:
+    ts_hl += h_line
+    exp_dept_time = t_offs + ts_hl + bus_offset
+    act_dept_time = nearest_bus_depart_time(exp_dept_time,sec_line)
+    if act_dept_time == exp_dept_time:
+        print ("at ts: %d two longest buses come in order" %ts_hl)
+        ts_sched +=[ts_hl]
+
+
+
+fcntr = 0
+i = 0
+ts = ts_sched[1]-ts_sched[0]
+t_offs = ts_sched[0]
+cts = 0
+print ("time offset: %d, time diff between departs: %d " %(t_offs,ts))
+
+# sys.exit()
+
+while (fcntr)<len(bus_lines):
+    i +=1
+    cts = t_offs + (i*ts)
+    if i%100000 == 0:
+        print ("======evaluating timestamp for hline: %d" %(cts) )
+
+    for j in bus_lines :
+        bus_offset_from_hline = bus_lines_from_hline [j]
+        exp_dept_time = cts+bus_offset_from_hline
+        act_dept_time = nearest_bus_depart_time(exp_dept_time,j)
+        # print ("bus num: ",j, ":", act_dept_time)
 
         if act_dept_time == exp_dept_time:
-            # print ("bus %d matches the schedule" %bus_num)
-            matching_bus_cntr += 1
+            fcntr +=1
         else:
-            # print( "at least one bus does not fit the schedule")
-            matching_bus_cntr = 1
-            cntr +=1
-            timestamp = cntr*h_line
+            # print ("order not kept, for bus %d the diff is %d" %(j, exp_dept_time-act_dept_time))
+            fcntr =0
             break
-    # print ("%d buses matching for timestamp %d" %(matching_bus_cntr, timestamp))
 
-print ("timestamp normalized versus timetable %d" %(timestamp+bus_lines_from_hline[int(bus_schedule[0])]))
+
+print ("current timestamp for hline: %d" %(cts) )
+fbus = int(bus_schedule[0])
+print("part 2 the earliest bus is: ",nearest_bus_depart_time(cts+bus_lines_from_hline[fbus],fbus) )
