@@ -1,8 +1,7 @@
 import sys
 import utils.inputReaders as ir
 import utils.locationHelpers as lh
-import math
-print("Day 13: Shuttle Search");
+print("Day 24: Lobby Layout");
 
 #read input
 puzzle_file = "";
@@ -12,89 +11,132 @@ if(len(sys.argv) == 1):
 else:
     puzzle_file = sys.argv[1];
 
-input_data = ir.read_oneline_records_as_list_entries(puzzle_file)
+layout = ir.read_oneline_records_as_list_entries(puzzle_file)
 
-my_time = int(input_data[0])
-bus_schedule = input_data[1].split(",")
+tiles ={}
 
-def nearest_bus_depart_time(time_now,busID):
-    depart_time = None
-    if isinstance(busID,int):
-        time_from_last_dept = time_now%busID
-        if time_from_last_dept>0:
-            depart_time = time_now + (busID - time_from_last_dept)
+def pos2str (position):
+    return str(position[0])+","+str(position[1])
+
+def get_direction (pattern):
+    if pattern[0:2] in ["se","ne","sw","nw"]:
+        return pattern[0:2]
+    else:
+        return pattern[0]
+
+for tile in layout:
+    pat_ind = 0
+    position = [0,0]
+    while pat_ind < len(tile):
+       direct = get_direction (tile[pat_ind:])
+       position = lh.move_by_direction_on_hex_grid (position, direct)
+       pat_ind += len(direct)
+    str_pos = pos2str(position)
+    if str_pos in tiles:
+        tiles[str_pos] = "b" if tiles[str_pos] == "w" else "w"
+    else:
+        tiles[str_pos] = "b"
+
+
+def get_number_adjacent_blacks (cur_pos, floor):
+    directions = ["ne","se","sw","nw","e","w"]
+    blk_cntr = 0
+    for direct in directions:
+        chk_pos = pos2str(lh.move_by_direction_on_hex_grid (cur_pos, direct))
+        if chk_pos in floor:
+            if floor[chk_pos] == "b":
+                blk_cntr +=1
+    return blk_cntr
+
+def str2pos (str_pos):
+    return [int(i) for i in str_pos.split(",")]
+
+def get_v_max_pos (floor):
+    max_v = [0,0]
+
+    for p in list(floor.keys()):
+        [x_cur,y_cur] = str2pos(p)
+        if (x_cur > max_v[0]) or (x_cur==max_v[0] and y_cur>max_v[1]):
+            max_v [0] = x_cur
+            max_v [1] = y_cur
+    return max_v
+
+def get_v_min_pos (floor):
+    min_v = [0,0]
+
+    for p in list(floor.keys()):
+        [x_cur,y_cur] = str2pos(p)
+        if x_cur < min_v[0] or (x_cur==min_v[0] and y_cur<min_v[1]):
+            min_v[0] = x_cur
+            min_v[1] = y_cur
+    return min_v
+
+def get_h_max_pos (floor):
+    max_h = [0,0]
+
+    for p in list(floor.keys()):
+        [x_cur,y_cur] = str2pos(p)
+
+        if y_cur > max_h[1] or (y_cur==max_h[1] and x_cur>max_h[0]):
+            max_h[0] = x_cur
+            max_h[1] = y_cur
+    return max_h
+
+def get_h_min_pos(floor):
+    min_h = [0,0]
+
+    for p in list(floor.keys()):
+        [x_cur,y_cur] = str2pos(p)
+        if y_cur < min_h[1] or (y_cur==min_h[1] and x_cur<min_h[0]):
+            min_h[0] = x_cur
+            min_h[1] = y_cur
+    return min_h
+
+def get_tile_color(cur_pos,floor):
+    return "w" if pos2str(cur_pos) not in floor else floor[pos2str(cur_pos)]
+
+def get_num_blacks(floor):
+    num_black = 0
+    for tile in tiles.values():
+        if tile == "b":
+            num_black += 1
+    return num_black
+
+print ("part 1: number of black tiles: %d" %(get_num_blacks(tiles)))
+
+days = 100
+
+for day in range(1, days + 1):
+    hmin = get_h_min_pos(tiles)
+    hmax = get_h_max_pos(tiles)
+    vmin = get_v_min_pos(tiles)
+    vmax = get_v_max_pos(tiles)
+
+    tiles2flip =[]
+
+    for ty in range(hmin[1]-4,hmax[1]+4,2):
+        #check range for x in given row
+        xmx, xmn = 0,0
+        if ty%4 == 0:
+            # x should be even
+            xmn = vmin[0] if vmin[0]%2 == 0 else vmin[0] -1
+            xmx = vmax[0] if vmax[0]%2 == 0 else vmax[0] +1
         else:
-            depart_time = time_now
+            # for odd rows
+            xmn = vmin[0] if vmin[0]%2 else vmin[0] -1
+            xmx = vmax[0] if vmax[0]%2 else vmax[0] +1
+        for tx in range (xmn-4,xmx+4,2):
 
-    return depart_time
-
-nearest_departues = []
-for bus in bus_schedule:
-    if bus != "x":
-        nearest_departues.append( [nearest_bus_depart_time(my_time,int(bus)),int(bus)])
-
-time_table = sorted(nearest_departues,key=lambda x:x[0])
-print ("part1: time to wait x bus ID is: %d" %((time_table[0][0]-my_time) * time_table[0][1]))
-
-bus_lines = []
-for b in bus_schedule:
-    if b != "x":
-        bus_lines += [int (b)]
-
-
-bus_lines = sorted(bus_lines)[::-1]
-h_line = bus_lines[0]
-offset_from_hline = 0
-h_line_pos = bus_schedule.index(str(h_line))
-
-bus_schedule_by_hline = []
-
-bus_lines_from_hline ={}
-for b in range(len(bus_schedule)):
-    if bus_schedule[b] != "x":
-        bus_lines_from_hline[int(bus_schedule[b])]=b - h_line_pos
-
-
-sec_line = bus_lines[1]
-bus_offset = bus_lines_from_hline[sec_line]
-ts_sched =[]
-t_offs = 0
-
-ts_hl = t_offs
-
-# two buses with longest route set a minimal interval of checking the
-# the order. The number will grow later but the base will stay
-while len(ts_sched)<2:
-    ts_hl += h_line
-    exp_dept_time = t_offs + ts_hl + bus_offset
-    act_dept_time = nearest_bus_depart_time(exp_dept_time,sec_line)
-    if act_dept_time == exp_dept_time:
-        ts_sched +=[ts_hl]
-
-ts = ts_sched[1]-ts_sched[0]
-t_offs = ts_sched[0]
-
-# departue cycles repeat. The minimal distance worth to check is
-# the one when two longest buses meet in given order. Shorter
-# routes shoul hit this cycle every n-th time. Looking for n...
-t_now = t_offs
-
-t_interval = ts
-for b in bus_lines[2:]:
-    t_now = t_offs
-
-    ts_sched = []
-    bus_offset = bus_lines_from_hline[b]
-    print("----bus num %d: start time %d, interval %d" %(b,t_now,t_interval))
-    while len(ts_sched)<2:
-        t_now += t_interval
-        exp_dept_time = t_now + bus_offset
-        act_dept_time = nearest_bus_depart_time(exp_dept_time,b)
-        if act_dept_time == exp_dept_time:
-            ts_sched +=[t_now]
-    t_interval = (ts_sched[1] - ts_sched[0])
-    t_offs = ts_sched[0]
-
-fbus = int(bus_schedule[0])
-print ("part 2: the first occurence of the bus order: %d" %(t_offs +bus_lines_from_hline[fbus]))
-
+            cur_col = get_tile_color([tx,ty],tiles)
+            blck_cntr = get_number_adjacent_blacks([tx,ty],tiles)
+            white_cntr = 6 - blck_cntr
+            if cur_col == "w" and blck_cntr ==2:
+                tiles2flip+=[pos2str([tx,ty])]
+            if cur_col == "b" and (blck_cntr==0 or blck_cntr>2):
+                tiles2flip+=[pos2str([tx,ty])]
+    for t in tiles2flip:
+        if t in tiles:
+            tiles[t] = "b" if tiles[t] == "w" else "w"
+        else:
+            tiles[t] = "b"
+print ("Part 2: Day %d number of black tiles: %d" %(day,get_num_blacks(tiles)))

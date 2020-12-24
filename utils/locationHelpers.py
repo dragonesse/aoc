@@ -24,7 +24,6 @@ def move_by_direction_on_hex_grid (init_pos, direction):
     # the possible directions are:
     # e, w, ne, nw, se, sw
     end_pos = []
-    print ("starting from: ", init_pos, "moving %s" %(direction))
     if direction == "e":
         end_pos = [init_pos[0]+2,init_pos[1]]
     elif direction == "w":
@@ -37,5 +36,4 @@ def move_by_direction_on_hex_grid (init_pos, direction):
         end_pos = [init_pos[0]+1,init_pos[1]-2]
     elif direction == "sw":
         end_pos = [init_pos[0]-1,init_pos[1]-2]
-    print ("ending at: ", end_pos)
     return end_pos
