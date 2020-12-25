@@ -37,10 +37,6 @@ with open(puzzle_file, 'r') as puzzle_in:
 
 puzzle_in.close()
 
-# print (rules)
-# print (my_ticket)
-# print (nearby_tickets)
-
 def is_field_compliant(field, crit):
     if (field >= crit[0] and field<=crit[1]) \
         or (field >= crit[2] and field <= crit[3]):
@@ -49,17 +45,60 @@ def is_field_compliant(field, crit):
         return False
 
 scan_error_rate = 0
+valid_tickets = []
 for tn in nearby_tickets:
     # check all rules:
+    valid_rules = 0
     for field in tn:
-        valid_rules = 0
+        has_valid_rule = False
+
         for crit in rules.values():
             if is_field_compliant(field,crit):
-                valid_rules += 1
+                has_valid_rule = True
+                valid_rules +=1
                 break
-        if valid_rules ==0:
-            # print ("value %d in ticket " %field, tn," does not match any rule" )
+        if not has_valid_rule:
             scan_error_rate += field
             break
+        elif valid_rules == len (tn):
+            valid_tickets.append(tn)
 
-print ("part 1: scanning error rate: %d" %scan_error_rate)
+print ("Part 1: scanning error rate: %d" %scan_error_rate)
+
+index_to_search = []
+for i in range(len(rules)):
+    index_to_search.append(i)
+
+while len(index_to_search) > 0:
+    for field_name in rules.keys():
+        if len(rules[field_name])==4:
+            crit = rules[field_name]
+        else:
+            # skip processing as we already assigned this rule
+            continue
+        choices = {}
+        for field_ind in index_to_search:
+            compliant_at_ind = 0
+
+            for tn in valid_tickets:
+                if is_field_compliant(tn[field_ind],crit):
+                    compliant_at_ind+=1
+
+            if compliant_at_ind == len(valid_tickets):
+                if field_name in choices:
+                    choices[field_name].append(field_ind)
+                else:
+                    choices[field_name] = [field_ind]
+
+        for field_name in choices.keys():
+            #only fields that have one possibility can be identified
+            # and the index is excluded from further searches
+            if len(choices[field_name]) == 1:
+                rules[field_name].append(choices[field_name][0])
+                index_to_search.remove (choices[field_name][0])
+
+score = 1
+for field_name in rules.keys():
+    if field_name.startswith("departure"):
+        score *= my_ticket[rules[field_name][4]]
+print ("Part 2: departure rules score: %d" %score)
