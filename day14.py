@@ -98,8 +98,7 @@ def generate_heap (base_addr_list, float_mask_list ):
     fi = float_mask_list.pop(0)
 
     for ba in base_addr_list:
-        tmp = generate_addr_at_float_ind (ba, fi)
-        res+=tmp
+        res+=generate_addr_at_float_ind (ba, fi)
 
     if len(float_mask_list ) > 0:
         return generate_heap (res, float_mask_list)
@@ -127,4 +126,4 @@ mem_sum =0
 for m in memory.keys():
     mem_sum += memory  [m]
 
-print  ("part 2: sum of memory cells is: %d" %mem_sum, mem_sum> 1330204164446)
+print  ("part 2: sum of memory cells is: %d" %mem_sum)
