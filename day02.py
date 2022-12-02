@@ -14,10 +14,6 @@ else:
 #read file
 secret_book = ir.read_oneline_records_as_list_entries(puzzle_file)
 
-print (secret_book)
-
-supply_list = []
-
 def translate_rule (single_round):
     # A for Rock, B for Paper, and C for Scissors.
     # X for Rock, Y for Paper, and Z for Scissors
@@ -45,8 +41,8 @@ def choose_your_move (single_round):
         "B X" : "P R",
         "C X" : "S P",
         "A Y" : "R R",
-        "B Y" : "P R",
-        "C Y" : "S R",
+        "B Y" : "P P",
+        "C Y" : "S S",
         "A Z" : "R P",
         "B Z" : "P S",
         "C Z" : "S R"
