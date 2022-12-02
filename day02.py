@@ -36,7 +36,23 @@ def translate_rule (single_round):
 
     return rule_mapping [single_round]
 
+def choose_your_move (single_round):
+    # X means you need to lose,
+    # Y means you need to end the round in a draw,
+    # Z means you need to win
+    rule_mapping = {
+        "A X" : "R S",
+        "B X" : "P R",
+        "C X" : "S P",
+        "A Y" : "R R",
+        "B Y" : "P R",
+        "C Y" : "S R",
+        "A Z" : "R P",
+        "B Z" : "P S",
+        "C Z" : "S R"
+    }
 
+    return rule_mapping[single_round]
 
 def determine_game_outcome (decoded_round):
     # Rock defeats Scissors, Scissors defeats Paper, and Paper defeats Rock
@@ -62,6 +78,8 @@ for game in secret_book:
 
 print ("Part 1: your score is: {}".format(score))
 
-sys.exit(0)
-top3 = sorted(supply_list)[-3:]
-print ("Part 2: the sum of calories for top 3 equipped elves is: {}".format(sum(top3)))
+score = 0
+for game in secret_book:
+    score += determine_game_outcome(choose_your_move(game))
+
+print ("Part 2: your score is: {}".format(score))
