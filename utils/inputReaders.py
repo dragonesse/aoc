@@ -17,10 +17,13 @@ def read_multiline_records_as_list_entries(input_file):
     puzzle_in.close()
     return out_list
 
-def read_oneline_records_as_list_entries(input_file):
+def read_oneline_records_as_list_entries(input_file, stripping = True):
     out_list = []
     with open(input_file, 'r') as puzzle_in:
-        out_list = [cur_line.strip() for cur_line in puzzle_in]
+        if stripping:
+            out_list = [cur_line.strip() for cur_line in puzzle_in]
+        else:
+            out_list = [cur_line.replace("\n","") for cur_line in puzzle_in]
     puzzle_in.close()
     return out_list
 
