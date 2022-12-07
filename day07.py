@@ -21,7 +21,7 @@ def find_next_cmd_offset(start_offset, listing):
     while not listing[cmd_offset].startswith('$'):
         cmd_offset+=1
         if cmd_offset >= len(listing):
-            print ("no more commands to process")
+            print ("No more commands to process")
             return start_offset
     return cmd_offset
 
@@ -35,7 +35,6 @@ while line_num < len(listing):
     next_offset = find_next_cmd_offset (line_num,listing)
     if next_offset > line_num:
         cmd = listing[next_offset]
-        print ("Executing: {}".format(cmd))
         if "cd" in cmd:
             if '..' in cmd:
                 pwd = pwd [:pwd.rindex('/',0,-2)+1]
@@ -45,7 +44,6 @@ while line_num < len(listing):
                 pwd += cmd[5:]+'/'
                 if pwd not in filesystem.keys():
                     filesystem[pwd]=[]
-            print(pwd)
             line_num = next_offset
         elif "ls" in cmd:
             line_num = next_offset
@@ -53,7 +51,6 @@ while line_num < len(listing):
             if next_offset==line_num:
                 next_offset=len(listing)
             for line in listing[line_num+1:next_offset]:
-                print (line)
                 if line not in filesystem[pwd]:
                     filesystem[pwd].append(line)
     else:
@@ -73,12 +70,27 @@ def get_size(path,content):
 
 limit = 100000
 total = 0
+du = {}
 for f in sorted(filesystem.keys()):
-    #print ("{}:{}".format(f,filesystem[f]))
     s=get_size(f,filesystem[f])
-    print("{}:\t{}".format(f,s))
     if s<=limit:
         total+=s
+    else:
+        du [f] = s
 
-#s = get_size('/a/',['dir e', '29116 f', '2557 g', '62596 h.lst'])
-print("Part 1: sum of directories at most {} is {}".format(limit,total))
+print("Part 1: sum of directories of size at most {} is {}".format(limit,total))
+
+total_space = 70000000
+required_space = 30000000
+free_space = total_space - du['/']
+lack_of_space = required_space-free_space
+print ("Available space is {} need to free {}".format(free_space,lack_of_space))
+
+to_delete=[]
+for d in du.keys():
+    if du[d] >=lack_of_space:
+        to_delete.append(du[d])
+
+print ("Part 2: smallest dir to delete is: {}".format(min(to_delete)))
+
+
