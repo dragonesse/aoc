@@ -28,19 +28,22 @@ def find_next_cmd_offset(start_offset, listing):
 pwd = "/"
 filesystem = {'/':[]}
 line_num = -1
-dir_patt = re.compile(r'^dir\s(.*)$')
 file_pat = re.compile(r'^([0-9]+)\s(.*)$')
 
+# process input data and create directory tree
 while line_num < len(listing):
     next_offset = find_next_cmd_offset (line_num,listing)
+    # there are still commands to process on the list
     if next_offset > line_num:
         cmd = listing[next_offset]
         if "cd" in cmd:
             if '..' in cmd:
+                # strip the current directory from the path
                 pwd = pwd [:pwd.rindex('/',0,-2)+1]
             elif '/' in cmd:
                 pwd = '/'
             else:
+                # add the directory to current working path
                 pwd += cmd[5:]+'/'
                 if pwd not in filesystem.keys():
                     filesystem[pwd]=[]
@@ -49,15 +52,18 @@ while line_num < len(listing):
             line_num = next_offset
             next_offset = find_next_cmd_offset(line_num,listing)
             if next_offset==line_num:
+                # ls was the last command, we just need to read the output
                 next_offset=len(listing)
             for line in listing[line_num+1:next_offset]:
+                # fill info about parent dir
                 if line not in filesystem[pwd]:
                     filesystem[pwd].append(line)
     else:
-        print ("There is nothing more we can do for you")
+        print ("This was the last command, there is nothing more we can do for you")
         break
 
 def get_size(path,content):
+    # sample listing for the path
     #['dir e', '29116 f', '2557 g', '62596 h.lst']
     size = 0
     for item in content:
