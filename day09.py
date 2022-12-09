@@ -20,10 +20,8 @@ def is_adjacent(tail_pos,head_pos):
     distance = lh.get_manhattan_dist(tail_pos,head_pos)
     if tail_pos[0] == head_pos[0] or tail_pos[1]==head_pos[1]:
         if distance <=1:
-            # print ("Adjacent horizontally or vertically")
             adj =True
     elif distance == 2:
-            # print ("Adjacent diagonally")
             adj = True
     return adj
 
@@ -42,8 +40,11 @@ def move_tail(from_pos,head_pos):
         elif abs(vect_x) > abs(vect_y):
             new_pos [0] = from_pos [0] + int(vect_x/2)
             new_pos [1] = from_pos [1] + vect_y
-        else :
+        elif abs(vect_x) < abs(vect_y):
             new_pos [0] = from_pos [0] + vect_x
+            new_pos [1] = from_pos [1] + int(vect_y/2)
+        else:
+            new_pos [0] = from_pos [0] + int(vect_x/2)
             new_pos [1] = from_pos [1] + int(vect_y/2)
 
     return new_pos
@@ -60,33 +61,38 @@ def move_head(from_pos,direction):
         new_pos[1] = from_pos[1]-1
     return  new_pos
 
-def move_it (from_pos,direction):
-    pass
-
-test = [ [[0,0],[0,0]], [[0,1],[0,0]], [[2,0],[0,0]], [[3,2],[4,3]], [[3,2],[4,4]] ]
-
-for p in test   :
-    print ("{} and {} are adjacent: {}\n".format(p[0],p[1],is_adjacent(p[0],p[1])))
 
 tail_spots = [[0,0]]
 head_pos = [0,0]
 tail_pos = [0,0]
 for move in motion_head:
-    print ("===== Processing move {}".format(move))
-    print ("Head start: {}, tail start: {}".format(head_pos, tail_pos))
     direction, dist  = move.split(' ')
     dist = int(dist)
     for step in range(dist):
         head_pos = move_head (head_pos, direction )
-        print ("Head moved to: {}".format(head_pos) )
         tail_pos = move_tail (tail_pos, head_pos)
-        print ("Tail moved to: {}\n".format(tail_pos) )
         if tail_pos not in tail_spots:
             tail_spots.append(tail_pos)
 
-for s in tail_spots:
-    print ("{}".format(s))
-
 print ("Part 1: number of positions the tail visited: {}".format(len(tail_spots)))
 
+tail_spots = [[0,0]]
+head_pos = [0,0]
+num_tails = 9
+tail_pos = []
+for i in range(num_tails):
+    tail_pos.append([0,0])
 
+for move in motion_head:
+    direction, dist  = move.split(' ')
+    dist = int(dist)
+    for step in range(dist):
+        head_pos = move_head (head_pos, direction )
+        tail_pos[0] = move_tail (tail_pos[0], head_pos)
+        for t in range(1,num_tails):
+            tt = [tail_pos[t][0],tail_pos[t][1]]
+            tail_pos[t] = move_tail (tail_pos[t], tail_pos[t-1])
+        if tail_pos[8] not in tail_spots:
+            tail_spots.append(tail_pos[8])
+
+print ("Part 2: number of positions the tail visited: {}".format(len(tail_spots)))
