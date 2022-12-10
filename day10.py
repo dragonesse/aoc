@@ -26,7 +26,6 @@ check_interval = 40
 next_check = 20
 
 def read_signal (cycle_num,reg):
-    print ("reg val in cycle {} is {}".format(cycle_num,reg))
     return cycle_num*reg
 
 def is_time(cycle_num,next_check):
@@ -62,7 +61,47 @@ for instr in the_program:
             cpu_cycle += 2
             regx += lval
 
-# read_signal(cpu_cycle,regx)
 print ("Part 1: calculated signal strength is: {}".format(signal_strength))
 
+crt = []
+crt_lines = 6
+crt_columns = 40
 
+cpu_cycle = 1
+regx = 1
+
+for l in range(crt_lines):
+    crt.append(["x" for c in range (crt_columns)])
+
+sprite_size =3
+
+def draw(cycle,sprite_pos,crt):
+    # get crt line by cycle
+    crt_line = (cycle-1)//crt_columns
+    beam_pos = (cycle-1)%crt_columns
+    if  beam_pos in [sprite_pos-1,sprite_pos,sprite_pos+1]:
+        crt[crt_line][beam_pos] = "#"
+    else:
+        crt[crt_line][beam_pos] = "."
+    return
+
+for instr in the_program:
+    # parse
+    lval = 0
+    if "addx" in instr:
+        lval = int(instr.split(' ')[1])
+    # process
+    if "noop" in instr:
+        draw(cpu_cycle,regx,crt)
+        cpu_cycle +=1
+    else:
+        draw(cpu_cycle,regx,crt)
+        cpu_cycle += 1
+        draw (cpu_cycle,regx,crt)
+        regx += lval
+        cpu_cycle += 1
+
+print("Part 2: The generated image is:")
+
+for l in crt:
+    print (''.join(l))
